@@ -34,6 +34,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { SocialLinks } from "@/components/SocialLinks";
+import { BannerCropper } from "@/components/BannerCropper";
 
 const GENRES = ["Hip Hop", "Trap", "R&B", "Drill", "Pop", "Electronic", "Lo-Fi", "Soul", "House", "Techno"];
 
@@ -67,6 +68,8 @@ export default function Settings() {
   // Banner state
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const [showBannerCropper, setShowBannerCropper] = useState(false);
+  const [tempBannerFile, setTempBannerFile] = useState<File | null>(null);
   
   const [saving, setSaving] = useState(false);
   const [creatingCreator, setCreatingCreator] = useState(false);
@@ -225,13 +228,24 @@ export default function Settings() {
     }
   };
 
-  const handleBannerChange = (file: File | null) => {
-    setBannerFile(file);
+  const handleBannerSelect = (file: File | null) => {
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setBannerPreview(reader.result as string);
-      reader.readAsDataURL(file);
+      setTempBannerFile(file);
+      setShowBannerCropper(true);
     }
+  };
+
+  const handleBannerCropComplete = (croppedBlob: Blob) => {
+    const croppedFile = new File([croppedBlob], "banner.jpg", { type: "image/jpeg" });
+    setBannerFile(croppedFile);
+    setBannerPreview(URL.createObjectURL(croppedBlob));
+    setShowBannerCropper(false);
+    setTempBannerFile(null);
+  };
+
+  const handleBannerCropCancel = () => {
+    setShowBannerCropper(false);
+    setTempBannerFile(null);
   };
 
   const handleSaveCreator = async () => {
@@ -616,7 +630,7 @@ export default function Settings() {
                     <Label className="text-base font-medium">Profile Banner</Label>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Add a banner image to your profile. Recommended size: 1200x300px.
+                    Add a banner image to your profile. Will be cropped to 1200×300px (4:1 ratio).
                   </p>
                   
                   {bannerPreview && (
@@ -642,9 +656,19 @@ export default function Settings() {
                   <Input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleBannerChange(e.target.files?.[0] || null)}
+                    onChange={(e) => handleBannerSelect(e.target.files?.[0] || null)}
                   />
                 </div>
+
+                {/* Banner Cropper Dialog */}
+                {tempBannerFile && (
+                  <BannerCropper
+                    imageFile={tempBannerFile}
+                    onCropComplete={handleBannerCropComplete}
+                    onCancel={handleBannerCropCancel}
+                    open={showBannerCropper}
+                  />
+                )}
 
                 {/* Social Links Section */}
                 <div className="space-y-4 pt-6 border-t border-border">
