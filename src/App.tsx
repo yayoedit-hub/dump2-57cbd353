@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -25,32 +26,34 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/explore" element={<Explore />} />
-            <Route path="/creator/:handle" element={<CreatorProfile />} />
-            <Route path="/creator/dashboard" element={<CreatorDashboard />} />
-            <Route path="/creator/upload" element={<CreatorUpload />} />
-            <Route path="/how-to-upload" element={<HowToUpload />} />
-            <Route path="/pack/:id" element={<PackDetail />} />
-            <Route path="/subscriptions" element={<Subscriptions />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/download" element={<Download />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/licensing" element={<Licensing />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/creator/:handle" element={<CreatorProfile />} />
+              <Route path="/creator/dashboard" element={<CreatorDashboard />} />
+              <Route path="/creator/upload" element={<CreatorUpload />} />
+              <Route path="/how-to-upload" element={<HowToUpload />} />
+              <Route path="/pack/:id" element={<PackDetail />} />
+              <Route path="/subscriptions" element={<Subscriptions />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/download" element={<Download />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/licensing" element={<Licensing />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
