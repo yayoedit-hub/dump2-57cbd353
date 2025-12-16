@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "next-themes";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,18 +24,21 @@ import {
   Plus,
   X,
   Link,
-  ExternalLink,
   Cloud,
   Globe,
   Instagram,
   Youtube,
-  ImageIcon
+  ImageIcon,
+  Moon,
+  Sun,
+  Palette
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { SocialLinks } from "@/components/SocialLinks";
 import { BannerCropper } from "@/components/BannerCropper";
+import { AvatarCropper } from "@/components/AvatarCropper";
 
 const GENRES = ["Hip Hop", "Trap", "R&B", "Drill", "Pop", "Electronic", "Lo-Fi", "Soul", "House", "Techno"];
 
@@ -43,10 +47,14 @@ type UserRole = "subscriber" | "creator" | "both";
 export default function Settings() {
   const { user, profile, creator, loading: authLoading, refreshProfile } = useAuth();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   
   // Profile state
   const [displayName, setDisplayName] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [showAvatarCropper, setShowAvatarCropper] = useState(false);
+  const [tempAvatarFile, setTempAvatarFile] = useState<File | null>(null);
   const [role, setRole] = useState<UserRole>("subscriber");
   
   // Creator state
@@ -89,6 +97,7 @@ export default function Settings() {
     if (profile) {
       setDisplayName(profile.display_name || "");
       setRole(profile.role || "subscriber");
+      setAvatarPreview(profile.avatar_url || null);
     }
     if (creator) {
       setHandle(creator.handle);
@@ -105,6 +114,26 @@ export default function Settings() {
       setBannerPreview(creator.banner_url || null);
     }
   }, [profile, creator]);
+
+  const handleAvatarSelect = (file: File | null) => {
+    if (file) {
+      setTempAvatarFile(file);
+      setShowAvatarCropper(true);
+    }
+  };
+
+  const handleAvatarCropComplete = (croppedBlob: Blob) => {
+    const croppedFile = new File([croppedBlob], "avatar.png", { type: "image/png" });
+    setAvatarFile(croppedFile);
+    setAvatarPreview(URL.createObjectURL(croppedBlob));
+    setShowAvatarCropper(false);
+    setTempAvatarFile(null);
+  };
+
+  const handleAvatarCropCancel = () => {
+    setShowAvatarCropper(false);
+    setTempAvatarFile(null);
+  };
 
   const toggleTag = (tag: string) => {
     setSelectedTags(prev =>
@@ -355,19 +384,72 @@ export default function Settings() {
         <h1 className="text-3xl font-bold mb-8">Settings</h1>
 
         <Tabs defaultValue="profile">
-          <TabsList className="mb-6">
-            <TabsTrigger value="profile" className="gap-2">
+          <TabsList className="mb-6 w-full flex-wrap h-auto gap-1 p-1">
+            <TabsTrigger value="profile" className="gap-1.5 flex-1 sm:flex-none text-xs sm:text-sm">
               <User className="h-4 w-4" />
-              Profile
+              <span className="hidden xs:inline">Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="creator" className="gap-2">
+            <TabsTrigger value="appearance" className="gap-1.5 flex-1 sm:flex-none text-xs sm:text-sm">
+              <Palette className="h-4 w-4" />
+              <span className="hidden xs:inline">Appearance</span>
+            </TabsTrigger>
+            <TabsTrigger value="creator" className="gap-1.5 flex-1 sm:flex-none text-xs sm:text-sm">
               <Music className="h-4 w-4" />
-              Creator
+              <span className="hidden xs:inline">Creator</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6">
+            {/* Avatar Section */}
+            <div className="space-y-4">
+              <Label>Profile Photo</Label>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="relative">
+                  <div className="w-24 h-24 rounded-full bg-secondary border-2 border-border overflow-hidden flex items-center justify-center text-2xl font-bold">
+                    {avatarPreview ? (
+                      <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      displayName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "?"
+                    )}
+                  </div>
+                  {avatarPreview && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAvatarFile(null);
+                        setAvatarPreview(null);
+                      }}
+                      className="absolute -top-1 -right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleAvatarSelect(e.target.files?.[0] || null)}
+                    className="max-w-xs"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Will be cropped to a circle
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Avatar Cropper Dialog */}
+            {tempAvatarFile && (
+              <AvatarCropper
+                imageFile={tempAvatarFile}
+                onCropComplete={handleAvatarCropComplete}
+                onCancel={handleAvatarCropCancel}
+                open={showAvatarCropper}
+              />
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="displayName">Display Name</Label>
               <Input
@@ -376,21 +458,6 @@ export default function Settings() {
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Your name"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="avatar">Avatar</Label>
-              <Input
-                id="avatar"
-                type="file"
-                accept="image/*"
-                onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
-              />
-              {profile?.avatar_url && !avatarFile && (
-                <p className="text-sm text-muted-foreground">
-                  Current avatar set
-                </p>
-              )}
             </div>
 
             <div className="space-y-2">
@@ -410,7 +477,7 @@ export default function Settings() {
               </p>
             </div>
 
-            <Button onClick={handleSaveProfile} disabled={saving}>
+            <Button onClick={handleSaveProfile} disabled={saving} className="w-full sm:w-auto">
               {saving ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -418,6 +485,59 @@ export default function Settings() {
               )}
               Save Profile
             </Button>
+          </TabsContent>
+
+          {/* Appearance Tab */}
+          <TabsContent value="appearance" className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-medium mb-1">Theme</h3>
+                <p className="text-sm text-muted-foreground">
+                  Choose your preferred color scheme
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button
+                  onClick={() => setTheme("light")}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    theme === "light" 
+                      ? "border-primary bg-primary/5" 
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <Sun className="h-6 w-6 mx-auto mb-2" />
+                  <span className="text-sm font-medium">Light</span>
+                </button>
+                
+                <button
+                  onClick={() => setTheme("dark")}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    theme === "dark" 
+                      ? "border-primary bg-primary/5" 
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <Moon className="h-6 w-6 mx-auto mb-2" />
+                  <span className="text-sm font-medium">Dark</span>
+                </button>
+                
+                <button
+                  onClick={() => setTheme("system")}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    theme === "system" 
+                      ? "border-primary bg-primary/5" 
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <div className="h-6 w-6 mx-auto mb-2 flex items-center justify-center">
+                    <Sun className="h-4 w-4 absolute" style={{ clipPath: 'inset(0 50% 0 0)' }} />
+                    <Moon className="h-4 w-4 absolute" style={{ clipPath: 'inset(0 0 0 50%)' }} />
+                  </div>
+                  <span className="text-sm font-medium">System</span>
+                </button>
+              </div>
+            </div>
           </TabsContent>
 
           {/* Creator Tab */}
@@ -762,7 +882,7 @@ export default function Settings() {
                   )}
                 </div>
 
-                <Button onClick={handleSaveCreator} disabled={saving}>
+                <Button onClick={handleSaveCreator} disabled={saving} className="w-full sm:w-auto">
                   {saving ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
