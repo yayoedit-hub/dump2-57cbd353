@@ -66,6 +66,8 @@ export type Database = {
           payout_email: string | null
           price_usd: number | null
           stripe_account_id: string | null
+          stripe_price_id: string | null
+          stripe_product_id: string | null
           tags: string[] | null
           updated_at: string
           user_id: string
@@ -82,6 +84,8 @@ export type Database = {
           payout_email?: string | null
           price_usd?: number | null
           stripe_account_id?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           tags?: string[] | null
           updated_at?: string
           user_id: string
@@ -98,6 +102,8 @@ export type Database = {
           payout_email?: string | null
           price_usd?: number | null
           stripe_account_id?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           tags?: string[] | null
           updated_at?: string
           user_id?: string
@@ -259,6 +265,7 @@ export type Database = {
           current_period_end: string | null
           id: string
           status: Database["public"]["Enums"]["subscription_status"] | null
+          stripe_customer_id: string | null
           stripe_subscription_id: string | null
           subscriber_id: string
         }
@@ -268,6 +275,7 @@ export type Database = {
           current_period_end?: string | null
           id?: string
           status?: Database["public"]["Enums"]["subscription_status"] | null
+          stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscriber_id: string
         }
@@ -277,6 +285,7 @@ export type Database = {
           current_period_end?: string | null
           id?: string
           status?: Database["public"]["Enums"]["subscription_status"] | null
+          stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscriber_id?: string
         }
