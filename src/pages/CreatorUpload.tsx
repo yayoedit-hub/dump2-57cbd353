@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -230,7 +230,12 @@ export default function CreatorUpload() {
   return (
     <Layout>
       <div className="container py-8 max-w-2xl">
-        <h1 className="text-3xl font-bold mb-2">Upload Dump Pack</h1>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-3xl font-bold">Upload Dump Pack</h1>
+          <Link to="/how-to-upload" className="text-sm text-muted-foreground hover:text-foreground underline">
+            How to upload?
+          </Link>
+        </div>
         <p className="text-muted-foreground mb-8">
           Share your unfinished projects with subscribers
         </p>

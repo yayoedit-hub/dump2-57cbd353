@@ -10,6 +10,7 @@ import Explore from "./pages/Explore";
 import CreatorProfile from "./pages/CreatorProfile";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import CreatorUpload from "./pages/CreatorUpload";
+import HowToUpload from "./pages/HowToUpload";
 import PackDetail from "./pages/PackDetail";
 import Subscriptions from "./pages/Subscriptions";
 import Settings from "./pages/Settings";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/creator/:handle" element={<CreatorProfile />} />
             <Route path="/creator/dashboard" element={<CreatorDashboard />} />
             <Route path="/creator/upload" element={<CreatorUpload />} />
+            <Route path="/how-to-upload" element={<HowToUpload />} />
             <Route path="/pack/:id" element={<PackDetail />} />
             <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="/settings" element={<Settings />} />
