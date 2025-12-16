@@ -2,3 +2,15 @@ project_id = "pigkjkuteodszjkarwvz"
 
 [functions.get-download-url]
 verify_jwt = false
+
+[functions.create-checkout-session]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.cancel-subscription]
+verify_jwt = false
+
+[functions.create-stripe-price]
+verify_jwt = false

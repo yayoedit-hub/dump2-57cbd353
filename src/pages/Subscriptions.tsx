@@ -34,6 +34,7 @@ export default function Subscriptions() {
   const navigate = useNavigate();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cancelingId, setCancelingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -77,8 +78,25 @@ export default function Subscriptions() {
   };
 
   const handleCancel = async (subscriptionId: string) => {
-    // For MVP, just show a message - Stripe integration will handle actual cancellation
-    toast.info("Cancellation will be available once Stripe is integrated");
+    setCancelingId(subscriptionId);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("cancel-subscription", {
+        body: { subscription_id: subscriptionId }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      toast.success(data.message || "Subscription canceled");
+      fetchSubscriptions(); // Refresh list
+    } catch (error) {
+      console.error("Cancel error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to cancel subscription");
+    } finally {
+      setCancelingId(null);
+    }
   };
 
   if (authLoading || loading) {
@@ -167,8 +185,13 @@ export default function Subscriptions() {
                             variant="ghost" 
                             size="sm"
                             onClick={() => handleCancel(sub.id)}
+                            disabled={cancelingId === sub.id}
                           >
-                            Cancel
+                            {cancelingId === sub.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              "Cancel"
+                            )}
                           </Button>
                         </div>
                       </div>

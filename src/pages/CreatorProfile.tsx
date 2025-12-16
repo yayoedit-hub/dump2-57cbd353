@@ -30,6 +30,7 @@ interface Creator {
   license_type: "personal_only" | "commercial_with_credit";
   back_catalog_access: boolean;
   user_id: string;
+  stripe_price_id: string | null;
   profiles: {
     display_name: string | null;
     avatar_url: string | null;
@@ -65,6 +66,7 @@ export default function CreatorProfile() {
   const [packs, setPacks] = useState<DumpPack[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscribing, setSubscribing] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
 
@@ -146,13 +148,41 @@ export default function CreatorProfile() {
     setPlayingId(pack.id);
   };
 
-  const handleSubscribe = () => {
+  const handleSubscribe = async () => {
     if (!user) {
       toast.error("Please sign in to subscribe");
+      window.location.href = "/auth";
       return;
     }
-    // TODO: Implement Stripe subscription
-    toast.info("Stripe integration coming soon!");
+    
+    if (!creator) return;
+
+    if (!creator.stripe_price_id) {
+      toast.error("This creator hasn't set up payments yet");
+      return;
+    }
+
+    setSubscribing(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { creator_id: creator.id }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL received");
+      }
+    } catch (error) {
+      console.error("Subscribe error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to start checkout");
+      setSubscribing(false);
+    }
   };
 
   const handleRandomDump = () => {
@@ -241,8 +271,8 @@ export default function CreatorProfile() {
                 Subscribed
               </Button>
             ) : (
-              <Button size="lg" onClick={handleSubscribe}>
-                Subscribe
+              <Button size="lg" onClick={handleSubscribe} disabled={subscribing}>
+                {subscribing ? "Redirecting..." : "Subscribe"}
               </Button>
             )}
           </div>

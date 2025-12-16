@@ -152,7 +152,7 @@ export default function Settings() {
         return;
       }
 
-      const { error } = await supabase
+      const { data: newCreator, error } = await supabase
         .from("creators")
         .insert({
           user_id: user.id,
@@ -162,7 +162,9 @@ export default function Settings() {
           tags: selectedTags,
           license_type: licenseType,
           back_catalog_access: backCatalogAccess,
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -172,8 +174,19 @@ export default function Settings() {
         .update({ role: role === "subscriber" ? "creator" : "both" })
         .eq("id", user.id);
 
+      // Create Stripe product and price
+      const { error: stripeError } = await supabase.functions.invoke("create-stripe-price", {
+        body: { creator_id: newCreator.id, price_usd: parseInt(priceUsd) || 5 }
+      });
+
+      if (stripeError) {
+        console.error("Stripe setup error:", stripeError);
+        toast.warning("Creator profile created, but Stripe setup failed. Update your price in settings to retry.");
+      } else {
+        toast.success("Creator profile created with Stripe pricing!");
+      }
+
       await refreshProfile();
-      toast.success("Creator profile created!");
     } catch (error) {
       console.error("Create creator error:", error);
       toast.error("Failed to create creator profile");
@@ -187,24 +200,40 @@ export default function Settings() {
     setSaving(true);
 
     try {
-      const { error } = await supabase
-        .from("creators")
-        .update({
-          bio: bio.trim() || null,
-          price_usd: parseInt(priceUsd) || 5,
-          tags: selectedTags,
-          license_type: licenseType,
-          back_catalog_access: backCatalogAccess,
-        })
-        .eq("id", creator.id);
+      const newPrice = parseInt(priceUsd) || 5;
+      const priceChanged = newPrice !== creator.price_usd;
 
-      if (error) throw error;
+      // If price changed, create new Stripe price
+      if (priceChanged) {
+        const { data, error: stripeError } = await supabase.functions.invoke("create-stripe-price", {
+          body: { creator_id: creator.id, price_usd: newPrice }
+        });
+
+        if (stripeError) {
+          throw new Error(stripeError.message || "Failed to update Stripe price");
+        }
+
+        toast.success("Stripe pricing updated!");
+      } else {
+        // Just update other fields
+        const { error } = await supabase
+          .from("creators")
+          .update({
+            bio: bio.trim() || null,
+            tags: selectedTags,
+            license_type: licenseType,
+            back_catalog_access: backCatalogAccess,
+          })
+          .eq("id", creator.id);
+
+        if (error) throw error;
+      }
 
       await refreshProfile();
       toast.success("Creator settings saved");
     } catch (error) {
       console.error("Save error:", error);
-      toast.error("Failed to save creator settings");
+      toast.error(error instanceof Error ? error.message : "Failed to save creator settings");
     } finally {
       setSaving(false);
     }
