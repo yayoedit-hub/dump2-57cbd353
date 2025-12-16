@@ -21,11 +21,14 @@ import {
   Loader2,
   Save,
   Plus,
-  X
+  X,
+  Link,
+  ExternalLink
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { SocialLinks } from "@/components/SocialLinks";
 
 const GENRES = ["Hip Hop", "Trap", "R&B", "Drill", "Pop", "Electronic", "Lo-Fi", "Soul", "House", "Techno"];
 
@@ -49,8 +52,20 @@ export default function Settings() {
   const [licenseType, setLicenseType] = useState<"personal_only" | "commercial_with_credit">("personal_only");
   const [backCatalogAccess, setBackCatalogAccess] = useState(true);
   
+  // Social links state
+  const [soundcloudUrl, setSoundcloudUrl] = useState("");
+  const [spotifyUrl, setSpotifyUrl] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [instagramUrl, setInstagramUrl] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  
   const [saving, setSaving] = useState(false);
   const [creatingCreator, setCreatingCreator] = useState(false);
+
+  const validateUrl = (url: string): boolean => {
+    if (!url) return true;
+    return url.startsWith("https://");
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -70,6 +85,11 @@ export default function Settings() {
       setSelectedTags(creator.tags || []);
       setLicenseType(creator.license_type || "personal_only");
       setBackCatalogAccess(creator.back_catalog_access ?? true);
+      setSoundcloudUrl(creator.soundcloud_url || "");
+      setSpotifyUrl(creator.spotify_url || "");
+      setWebsiteUrl(creator.website_url || "");
+      setInstagramUrl(creator.instagram_url || "");
+      setYoutubeUrl(creator.youtube_url || "");
     }
   }, [profile, creator]);
 
@@ -197,6 +217,23 @@ export default function Settings() {
 
   const handleSaveCreator = async () => {
     if (!creator) return;
+    
+    // Validate URLs
+    const urls = [
+      { url: soundcloudUrl, name: "SoundCloud" },
+      { url: spotifyUrl, name: "Spotify" },
+      { url: websiteUrl, name: "Website" },
+      { url: instagramUrl, name: "Instagram" },
+      { url: youtubeUrl, name: "YouTube" },
+    ];
+    
+    for (const { url, name } of urls) {
+      if (url && !validateUrl(url)) {
+        toast.error(`${name} URL must start with https://`);
+        return;
+      }
+    }
+    
     setSaving(true);
 
     try {
@@ -214,20 +251,25 @@ export default function Settings() {
         }
 
         toast.success("Stripe pricing updated!");
-      } else {
-        // Just update other fields
-        const { error } = await supabase
-          .from("creators")
-          .update({
-            bio: bio.trim() || null,
-            tags: selectedTags,
-            license_type: licenseType,
-            back_catalog_access: backCatalogAccess,
-          })
-          .eq("id", creator.id);
-
-        if (error) throw error;
       }
+      
+      // Update creator fields including social links
+      const { error } = await supabase
+        .from("creators")
+        .update({
+          bio: bio.trim() || null,
+          tags: selectedTags,
+          license_type: licenseType,
+          back_catalog_access: backCatalogAccess,
+          soundcloud_url: soundcloudUrl.trim() || null,
+          spotify_url: spotifyUrl.trim() || null,
+          website_url: websiteUrl.trim() || null,
+          instagram_url: instagramUrl.trim() || null,
+          youtube_url: youtubeUrl.trim() || null,
+        })
+        .eq("id", creator.id);
+
+      if (error) throw error;
 
       await refreshProfile();
       toast.success("Creator settings saved");
@@ -529,6 +571,83 @@ export default function Settings() {
                     checked={backCatalogAccess}
                     onCheckedChange={setBackCatalogAccess}
                   />
+                </div>
+
+                {/* Social Links Section */}
+                <div className="space-y-4 pt-6 border-t border-border">
+                  <div className="flex items-center gap-2">
+                    <Link className="h-4 w-4" />
+                    <Label className="text-base font-medium">Social Links</Label>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Add links to your artist profiles. These will be shown on your public profile.
+                  </p>
+
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="soundcloud">SoundCloud</Label>
+                      <Input
+                        id="soundcloud"
+                        value={soundcloudUrl}
+                        onChange={(e) => setSoundcloudUrl(e.target.value)}
+                        placeholder="https://soundcloud.com/yourprofile"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="spotify">Spotify</Label>
+                      <Input
+                        id="spotify"
+                        value={spotifyUrl}
+                        onChange={(e) => setSpotifyUrl(e.target.value)}
+                        placeholder="https://open.spotify.com/artist/..."
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="website">Website</Label>
+                      <Input
+                        id="website"
+                        value={websiteUrl}
+                        onChange={(e) => setWebsiteUrl(e.target.value)}
+                        placeholder="https://yourwebsite.com"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="instagram">Instagram</Label>
+                      <Input
+                        id="instagram"
+                        value={instagramUrl}
+                        onChange={(e) => setInstagramUrl(e.target.value)}
+                        placeholder="https://instagram.com/yourprofile"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="youtube">YouTube</Label>
+                      <Input
+                        id="youtube"
+                        value={youtubeUrl}
+                        onChange={(e) => setYoutubeUrl(e.target.value)}
+                        placeholder="https://youtube.com/@yourchannel"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Preview */}
+                  {(soundcloudUrl || spotifyUrl || websiteUrl || instagramUrl || youtubeUrl) && (
+                    <div className="pt-4">
+                      <p className="text-sm text-muted-foreground mb-2">Preview:</p>
+                      <SocialLinks
+                        soundcloudUrl={soundcloudUrl}
+                        spotifyUrl={spotifyUrl}
+                        websiteUrl={websiteUrl}
+                        instagramUrl={instagramUrl}
+                        youtubeUrl={youtubeUrl}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <Button onClick={handleSaveCreator} disabled={saving}>
