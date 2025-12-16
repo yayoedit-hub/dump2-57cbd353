@@ -8,6 +8,11 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Explore from "./pages/Explore";
 import CreatorProfile from "./pages/CreatorProfile";
+import CreatorDashboard from "./pages/CreatorDashboard";
+import CreatorUpload from "./pages/CreatorUpload";
+import PackDetail from "./pages/PackDetail";
+import Subscriptions from "./pages/Subscriptions";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +29,11 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/creator/:handle" element={<CreatorProfile />} />
+            <Route path="/creator/dashboard" element={<CreatorDashboard />} />
+            <Route path="/creator/upload" element={<CreatorUpload />} />
+            <Route path="/pack/:id" element={<PackDetail />} />
+            <Route path="/subscriptions" element={<Subscriptions />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
