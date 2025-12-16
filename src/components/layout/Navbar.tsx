@@ -70,7 +70,7 @@ export function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem asChild>
-                  <Link to="/dashboard">Dashboard</Link>
+                  <Link to="/creator/dashboard">Dashboard</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/subscriptions">My Subscriptions</Link>
@@ -124,7 +124,7 @@ export function Navbar() {
               
               {user ? (
                 <>
-                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                  <Link to="/creator/dashboard" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start">Dashboard</Button>
                   </Link>
                   <Link to="/subscriptions" onClick={() => setMobileMenuOpen(false)}>

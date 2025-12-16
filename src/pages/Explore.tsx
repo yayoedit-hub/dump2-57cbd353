@@ -28,70 +28,6 @@ interface Creator {
   } | null;
 }
 
-// Placeholder creators for empty state
-const PLACEHOLDER_CREATORS: Creator[] = [
-  {
-    id: "placeholder-1",
-    handle: "beatsmith",
-    bio: "LA-based producer dropping unfinished heat weekly. Specializing in hard-hitting trap and melodic hip hop.",
-    tags: ["Hip Hop", "Trap"],
-    banner_url: null,
-    price_usd: 10,
-    user_id: "",
-    profiles: { display_name: "Beat Smith", avatar_url: null },
-  },
-  {
-    id: "placeholder-2",
-    handle: "melodymaven",
-    bio: "Grammy-nominated producer sharing the vault. Soul samples, vintage keys, and smooth progressions.",
-    tags: ["R&B", "Soul"],
-    banner_url: null,
-    price_usd: 15,
-    user_id: "",
-    profiles: { display_name: "Melody Maven", avatar_url: null },
-  },
-  {
-    id: "placeholder-3",
-    handle: "808god",
-    bio: "Hard-hitting 808s and dark melodies. UK drill and trap instrumentals.",
-    tags: ["Drill", "Trap"],
-    banner_url: null,
-    price_usd: 8,
-    user_id: "",
-    profiles: { display_name: "808 God", avatar_url: null },
-  },
-  {
-    id: "placeholder-4",
-    handle: "lofilegend",
-    bio: "Chill beats for studying and relaxing. Vintage samples and dusty drums.",
-    tags: ["Lo-Fi", "Hip Hop"],
-    banner_url: null,
-    price_usd: 5,
-    user_id: "",
-    profiles: { display_name: "Lo-Fi Legend", avatar_url: null },
-  },
-  {
-    id: "placeholder-5",
-    handle: "synthwave_sam",
-    bio: "Retro synths and modern production. 80s inspired electronic music.",
-    tags: ["Electronic", "Pop"],
-    banner_url: null,
-    price_usd: 12,
-    user_id: "",
-    profiles: { display_name: "Synthwave Sam", avatar_url: null },
-  },
-  {
-    id: "placeholder-6",
-    handle: "drillmaster",
-    bio: "UK drill specialist. Sliding 808s and aggressive patterns.",
-    tags: ["Drill", "Hip Hop"],
-    banner_url: null,
-    price_usd: 10,
-    user_id: "",
-    profiles: { display_name: "Drill Master", avatar_url: null },
-  },
-];
-
 export default function Explore() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [creators, setCreators] = useState<Creator[]>([]);
@@ -133,7 +69,7 @@ export default function Explore() {
 
     if (error) {
       console.error("Error fetching creators:", error);
-      setCreators(PLACEHOLDER_CREATORS);
+      setCreators([]);
     } else if (data && data.length > 0) {
       let filteredData = data as Creator[];
       
@@ -143,9 +79,9 @@ export default function Explore() {
         );
       }
       
-      setCreators(filteredData.length > 0 ? filteredData : PLACEHOLDER_CREATORS);
+      setCreators(filteredData);
     } else {
-      setCreators(PLACEHOLDER_CREATORS);
+      setCreators([]);
     }
     
     setLoading(false);
