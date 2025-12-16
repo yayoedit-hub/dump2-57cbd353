@@ -477,6 +477,53 @@ export default function Settings() {
               </p>
             </div>
 
+            {/* Banner Section */}
+            <div className="space-y-4 pt-6 border-t border-border">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="h-4 w-4" />
+                <Label className="text-base font-medium">Profile Banner</Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Add a banner image to your profile. Will be cropped to 1200×300px (4:1 ratio).
+              </p>
+              
+              {bannerPreview && (
+                <div className="relative rounded-lg overflow-hidden">
+                  <img 
+                    src={bannerPreview} 
+                    alt="Banner preview" 
+                    className="w-full h-32 object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBannerFile(null);
+                      setBannerPreview(null);
+                    }}
+                    className="absolute top-2 right-2 p-1 bg-background/80 rounded-full hover:bg-background"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+              
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleBannerSelect(e.target.files?.[0] || null)}
+              />
+            </div>
+
+            {/* Banner Cropper Dialog */}
+            {tempBannerFile && (
+              <BannerCropper
+                imageFile={tempBannerFile}
+                onCropComplete={handleBannerCropComplete}
+                onCancel={handleBannerCropCancel}
+                open={showBannerCropper}
+              />
+            )}
+
             <Button onClick={handleSaveProfile} disabled={saving} className="w-full sm:w-auto">
               {saving ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -742,53 +789,6 @@ export default function Settings() {
                     onCheckedChange={setBackCatalogAccess}
                   />
                 </div>
-
-                {/* Banner Section */}
-                <div className="space-y-4 pt-6 border-t border-border">
-                  <div className="flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4" />
-                    <Label className="text-base font-medium">Profile Banner</Label>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Add a banner image to your profile. Will be cropped to 1200×300px (4:1 ratio).
-                  </p>
-                  
-                  {bannerPreview && (
-                    <div className="relative rounded-lg overflow-hidden">
-                      <img 
-                        src={bannerPreview} 
-                        alt="Banner preview" 
-                        className="w-full h-32 object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setBannerFile(null);
-                          setBannerPreview(null);
-                        }}
-                        className="absolute top-2 right-2 p-1 bg-background/80 rounded-full hover:bg-background"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  )}
-                  
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleBannerSelect(e.target.files?.[0] || null)}
-                  />
-                </div>
-
-                {/* Banner Cropper Dialog */}
-                {tempBannerFile && (
-                  <BannerCropper
-                    imageFile={tempBannerFile}
-                    onCropComplete={handleBannerCropComplete}
-                    onCancel={handleBannerCropCancel}
-                    open={showBannerCropper}
-                  />
-                )}
 
                 {/* Social Links Section */}
                 <div className="space-y-4 pt-6 border-t border-border">
