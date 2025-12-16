@@ -23,7 +23,12 @@ import {
   Plus,
   X,
   Link,
-  ExternalLink
+  ExternalLink,
+  Cloud,
+  Globe,
+  Instagram,
+  Youtube,
+  ImageIcon
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -59,6 +64,10 @@ export default function Settings() {
   const [instagramUrl, setInstagramUrl] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   
+  // Banner state
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  
   const [saving, setSaving] = useState(false);
   const [creatingCreator, setCreatingCreator] = useState(false);
 
@@ -90,6 +99,7 @@ export default function Settings() {
       setWebsiteUrl(creator.website_url || "");
       setInstagramUrl(creator.instagram_url || "");
       setYoutubeUrl(creator.youtube_url || "");
+      setBannerPreview(creator.banner_url || null);
     }
   }, [profile, creator]);
 
@@ -215,8 +225,17 @@ export default function Settings() {
     }
   };
 
+  const handleBannerChange = (file: File | null) => {
+    setBannerFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setBannerPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSaveCreator = async () => {
-    if (!creator) return;
+    if (!creator || !user) return;
     
     // Validate URLs
     const urls = [
@@ -237,6 +256,22 @@ export default function Settings() {
     setSaving(true);
 
     try {
+      let bannerUrl = creator.banner_url;
+
+      // Upload banner if changed
+      if (bannerFile) {
+        const ext = bannerFile.name.split('.').pop();
+        const path = `${creator.id}/banner.${ext}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(path, bannerFile, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+        bannerUrl = data.publicUrl;
+      }
       const newPrice = parseInt(priceUsd) || 5;
       const priceChanged = newPrice !== creator.price_usd;
 
@@ -253,7 +288,7 @@ export default function Settings() {
         toast.success("Stripe pricing updated!");
       }
       
-      // Update creator fields including social links
+      // Update creator fields including social links and banner
       const { error } = await supabase
         .from("creators")
         .update({
@@ -266,6 +301,7 @@ export default function Settings() {
           website_url: websiteUrl.trim() || null,
           instagram_url: instagramUrl.trim() || null,
           youtube_url: youtubeUrl.trim() || null,
+          banner_url: bannerUrl,
         })
         .eq("id", creator.id);
 
@@ -573,6 +609,43 @@ export default function Settings() {
                   />
                 </div>
 
+                {/* Banner Section */}
+                <div className="space-y-4 pt-6 border-t border-border">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    <Label className="text-base font-medium">Profile Banner</Label>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Add a banner image to your profile. Recommended size: 1200x300px.
+                  </p>
+                  
+                  {bannerPreview && (
+                    <div className="relative rounded-lg overflow-hidden">
+                      <img 
+                        src={bannerPreview} 
+                        alt="Banner preview" 
+                        className="w-full h-32 object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setBannerFile(null);
+                          setBannerPreview(null);
+                        }}
+                        className="absolute top-2 right-2 p-1 bg-background/80 rounded-full hover:bg-background"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                  
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleBannerChange(e.target.files?.[0] || null)}
+                  />
+                </div>
+
                 {/* Social Links Section */}
                 <div className="space-y-4 pt-6 border-t border-border">
                   <div className="flex items-center gap-2">
@@ -585,7 +658,10 @@ export default function Settings() {
 
                   <div className="space-y-3">
                     <div className="space-y-2">
-                      <Label htmlFor="soundcloud">SoundCloud</Label>
+                      <Label htmlFor="soundcloud" className="flex items-center gap-2">
+                        <Cloud className="h-4 w-4 text-muted-foreground" />
+                        SoundCloud
+                      </Label>
                       <Input
                         id="soundcloud"
                         value={soundcloudUrl}
@@ -595,7 +671,10 @@ export default function Settings() {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="spotify">Spotify</Label>
+                      <Label htmlFor="spotify" className="flex items-center gap-2">
+                        <Music className="h-4 w-4 text-muted-foreground" />
+                        Spotify
+                      </Label>
                       <Input
                         id="spotify"
                         value={spotifyUrl}
@@ -605,7 +684,10 @@ export default function Settings() {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="website">Website</Label>
+                      <Label htmlFor="website" className="flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-muted-foreground" />
+                        Website
+                      </Label>
                       <Input
                         id="website"
                         value={websiteUrl}
@@ -615,7 +697,10 @@ export default function Settings() {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="instagram">Instagram</Label>
+                      <Label htmlFor="instagram" className="flex items-center gap-2">
+                        <Instagram className="h-4 w-4 text-muted-foreground" />
+                        Instagram
+                      </Label>
                       <Input
                         id="instagram"
                         value={instagramUrl}
@@ -625,7 +710,10 @@ export default function Settings() {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="youtube">YouTube</Label>
+                      <Label htmlFor="youtube" className="flex items-center gap-2">
+                        <Youtube className="h-4 w-4 text-muted-foreground" />
+                        YouTube
+                      </Label>
                       <Input
                         id="youtube"
                         value={youtubeUrl}
