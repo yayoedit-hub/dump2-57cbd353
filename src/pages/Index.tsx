@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
-import { ArrowRight, Music, Download, Sparkles, Play } from "lucide-react";
+import { ArrowRight, Music, Download, Sparkles } from "lucide-react";
 
 const FEATURED_CREATORS = [
   {
@@ -65,9 +65,9 @@ export default function Index() {
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </Link>
-              <Link to="/auth?mode=creator">
+              <Link to="/download">
                 <Button size="xl" variant="hero-outline" className="w-full sm:w-auto">
-                  Become a creator
+                  Download Dump App
                 </Button>
               </Link>
             </div>
@@ -188,12 +188,20 @@ export default function Index() {
             Turn your unfinished projects into recurring revenue. 
             Set your price, upload your dumps, and build your subscriber base.
           </p>
-          <Link to="/auth?mode=creator">
-            <Button size="xl" variant="secondary" className="font-semibold">
-              Start as a creator
-              <ArrowRight className="h-5 w-5" />
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/download">
+              <Button size="xl" variant="secondary" className="font-semibold">
+                Download Dump App
+                <Download className="h-5 w-5" />
+              </Button>
+            </Link>
+            <Link to="/auth?mode=creator">
+              <Button size="xl" variant="outline" className="font-semibold border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
+                Create account first
+                <ArrowRight className="h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
     </Layout>

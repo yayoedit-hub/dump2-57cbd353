@@ -14,6 +14,11 @@ import HowToUpload from "./pages/HowToUpload";
 import PackDetail from "./pages/PackDetail";
 import Subscriptions from "./pages/Subscriptions";
 import Settings from "./pages/Settings";
+import Download from "./pages/Download";
+import FAQ from "./pages/FAQ";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Licensing from "./pages/Licensing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +41,11 @@ const App = () => (
             <Route path="/pack/:id" element={<PackDetail />} />
             <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/download" element={<Download />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/licensing" element={<Licensing />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

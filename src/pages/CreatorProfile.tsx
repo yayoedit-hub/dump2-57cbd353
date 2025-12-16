@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SocialLinks } from "@/components/SocialLinks";
 import { 
   Play, 
   Pause, 
@@ -31,6 +32,11 @@ interface Creator {
   back_catalog_access: boolean;
   user_id: string;
   stripe_price_id: string | null;
+  soundcloud_url: string | null;
+  spotify_url: string | null;
+  website_url: string | null;
+  instagram_url: string | null;
+  youtube_url: string | null;
   profiles: {
     display_name: string | null;
     avatar_url: string | null;
@@ -227,6 +233,7 @@ export default function CreatorProfile() {
   }
 
   const displayName = creator.profiles?.display_name || creator.handle;
+  const hasLinks = creator.soundcloud_url || creator.spotify_url || creator.website_url || creator.instagram_url || creator.youtube_url;
 
   return (
     <Layout>
@@ -242,7 +249,7 @@ export default function CreatorProfile() {
 
       <div className="container">
         {/* Profile Header */}
-        <div className="flex flex-col md:flex-row md:items-end gap-6 -mt-16 md:-mt-20 mb-8">
+        <div className="flex flex-col md:flex-row md:items-end gap-6 -mt-16 md:-mt-20 mb-6">
           <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-secondary border-4 border-background flex items-center justify-center text-4xl font-bold overflow-hidden">
             {creator.profiles?.avatar_url ? (
               <img
@@ -258,25 +265,54 @@ export default function CreatorProfile() {
           <div className="flex-1 md:pb-2">
             <h1 className="text-2xl md:text-3xl font-bold">{displayName}</h1>
             <p className="text-muted-foreground">@{creator.handle}</p>
+            {creator.tags && creator.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {creator.tags.slice(0, 4).map((tag) => (
+                  <Badge key={tag} variant="secondary" className="text-xs">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col items-start md:items-end gap-3">
             <div className="text-right">
               <span className="text-2xl font-bold">${creator.price_usd}</span>
               <span className="text-muted-foreground">/month</span>
             </div>
             
-            {isSubscribed ? (
-              <Button variant="secondary" disabled>
-                Subscribed
-              </Button>
-            ) : (
-              <Button size="lg" onClick={handleSubscribe} disabled={subscribing}>
-                {subscribing ? "Redirecting..." : "Subscribe"}
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {isSubscribed ? (
+                <Button variant="secondary" disabled>
+                  Subscribed
+                </Button>
+              ) : (
+                <Button size="lg" onClick={handleSubscribe} disabled={subscribing}>
+                  {subscribing ? "Redirecting..." : "Subscribe"}
+                </Button>
+              )}
+              <Link to="/download">
+                <Button variant="outline" size="lg">
+                  Get App to Upload
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
+
+        {/* Social Links */}
+        {hasLinks && (
+          <div className="mb-8">
+            <SocialLinks
+              soundcloudUrl={creator.soundcloud_url}
+              spotifyUrl={creator.spotify_url}
+              websiteUrl={creator.website_url}
+              instagramUrl={creator.instagram_url}
+              youtubeUrl={creator.youtube_url}
+            />
+          </div>
+        )}
 
         {/* Tabs */}
         <Tabs defaultValue="dumps" className="pb-12">
@@ -421,6 +457,19 @@ export default function CreatorProfile() {
                       </Badge>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {hasLinks && (
+                <div>
+                  <h3 className="font-semibold mb-2">Listen</h3>
+                  <SocialLinks
+                    soundcloudUrl={creator.soundcloud_url}
+                    spotifyUrl={creator.spotify_url}
+                    websiteUrl={creator.website_url}
+                    instagramUrl={creator.instagram_url}
+                    youtubeUrl={creator.youtube_url}
+                  />
                 </div>
               )}
 

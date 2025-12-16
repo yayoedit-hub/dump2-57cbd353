@@ -4,36 +4,18 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { ProfileCompleteness } from "@/components/ProfileCompleteness";
 import { 
-  Plus, 
   Music, 
   Users, 
   Calendar, 
-  MoreVertical,
   Eye,
-  Pencil,
-  Trash2,
   FileArchive,
   FileAudio,
-  Piano
+  Piano,
+  Download,
+  ExternalLink
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -61,7 +43,6 @@ export default function CreatorDashboard() {
   const [packs, setPacks] = useState<DumpPack[]>([]);
   const [subscriberCount, setSubscriberCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !creator) {
@@ -97,24 +78,6 @@ export default function CreatorDashboard() {
     setLoading(false);
   };
 
-  const handleDelete = async (packId: string) => {
-    setDeletingId(packId);
-    
-    const { error } = await supabase
-      .from("dump_packs")
-      .update({ is_deleted: true })
-      .eq("id", packId);
-
-    if (error) {
-      toast.error("Failed to delete pack");
-    } else {
-      toast.success("Pack deleted");
-      setPacks(packs.filter(p => p.id !== packId));
-    }
-    
-    setDeletingId(null);
-  };
-
   if (authLoading || loading) {
     return (
       <Layout>
@@ -141,165 +104,170 @@ export default function CreatorDashboard() {
     ? new Date(packs[0].created_at).toLocaleDateString() 
     : "Never";
 
+  // Check profile completeness
+  const hasAvatar = !!profile?.avatar_url;
+  const hasBio = !!creator.bio && creator.bio.length > 0;
+  const hasPriceSet = !!creator.price_usd && creator.price_usd > 0;
+  const hasLinks = !!(creator.soundcloud_url || creator.spotify_url || creator.website_url || creator.instagram_url || creator.youtube_url);
+
   return (
     <Layout>
       <div className="container py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold mb-1">Creator Dashboard</h1>
+            <h1 className="text-3xl font-bold mb-1">Creator Overview</h1>
             <p className="text-muted-foreground">@{creator.handle}</p>
           </div>
-          <Link to="/creator/upload">
-            <Button>
-              <Plus className="h-4 w-4" />
-              Upload Dump Pack
-            </Button>
-          </Link>
+          <div className="flex gap-3">
+            <Link to={`/creator/${creator.handle}`}>
+              <Button variant="outline">
+                <ExternalLink className="h-4 w-4" />
+                View Profile
+              </Button>
+            </Link>
+            <Link to="/download">
+              <Button>
+                <Download className="h-4 w-4" />
+                Get App to Upload
+              </Button>
+            </Link>
+          </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Uploads
-              </CardTitle>
-              <Music className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{packs.length}</div>
-            </CardContent>
-          </Card>
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Stats */}
+            <div className="grid md:grid-cols-3 gap-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Total Uploads
+                  </CardTitle>
+                  <Music className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{packs.length}</div>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Subscribers
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{subscriberCount}</div>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Subscribers
+                  </CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{subscriberCount}</div>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Last Upload
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{lastUploadDate}</div>
-            </CardContent>
-          </Card>
-        </div>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Last Upload
+                  </CardTitle>
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{lastUploadDate}</div>
+                </CardContent>
+              </Card>
+            </div>
 
-        {/* Uploads List */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Your Dump Packs</h2>
+            {/* Uploads List */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Your Dump Packs</h2>
 
-          {packs.length === 0 ? (
-            <div className="py-16 text-center border border-dashed border-border rounded-xl">
-              <Music className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">No uploads yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Start sharing your unfinished projects with subscribers.
+              {packs.length === 0 ? (
+                <div className="py-16 text-center border border-dashed border-border rounded-xl">
+                  <Music className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No uploads yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Download the Dump app to start uploading your projects.
+                  </p>
+                  <Link to="/download">
+                    <Button>
+                      <Download className="h-4 w-4" />
+                      Get Dump App
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {packs.map((pack) => (
+                    <div
+                      key={pack.id}
+                      className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Link 
+                            to={`/pack/${pack.id}`}
+                            className="font-semibold hover:text-accent transition-colors truncate"
+                          >
+                            {pack.title}
+                          </Link>
+                          <Badge variant="secondary" className="shrink-0">
+                            {PACK_TYPE_LABELS[pack.pack_type]}
+                          </Badge>
+                          {pack.stems_zip_path && (
+                            <Badge variant="outline" className="shrink-0 gap-1">
+                              <FileAudio className="h-3 w-3" />
+                              Stems
+                            </Badge>
+                          )}
+                          {pack.midi_zip_path && (
+                            <Badge variant="outline" className="shrink-0 gap-1">
+                              <Piano className="h-3 w-3" />
+                              MIDI
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                          {pack.bpm && <span>{pack.bpm} BPM</span>}
+                          {pack.key && <span>{pack.key}</span>}
+                          <span>{new Date(pack.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+
+                      <Link to={`/pack/${pack.id}`}>
+                        <Button variant="ghost" size="icon">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            <ProfileCompleteness
+              hasAvatar={hasAvatar}
+              hasBio={hasBio}
+              hasPriceSet={hasPriceSet}
+              hasLinks={hasLinks}
+              dumpsCount={packs.length}
+            />
+
+            <div className="p-6 rounded-xl border border-border bg-card">
+              <h3 className="font-semibold mb-4">Upload Dump Packs</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Uploads happen through the Dump desktop app for proper file handling and organization.
               </p>
-              <Link to="/creator/upload">
-                <Button>
-                  <Plus className="h-4 w-4" />
-                  Upload your first Dump Pack
+              <Link to="/download">
+                <Button variant="outline" className="w-full gap-2">
+                  <Download className="h-4 w-4" />
+                  Download Dump App
                 </Button>
               </Link>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {packs.map((pack) => (
-                <div
-                  key={pack.id}
-                  className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Link 
-                        to={`/pack/${pack.id}`}
-                        className="font-semibold hover:text-accent transition-colors truncate"
-                      >
-                        {pack.title}
-                      </Link>
-                      <Badge variant="secondary" className="shrink-0">
-                        {PACK_TYPE_LABELS[pack.pack_type]}
-                      </Badge>
-                      {pack.stems_zip_path && (
-                        <Badge variant="outline" className="shrink-0 gap-1">
-                          <FileAudio className="h-3 w-3" />
-                          Stems
-                        </Badge>
-                      )}
-                      {pack.midi_zip_path && (
-                        <Badge variant="outline" className="shrink-0 gap-1">
-                          <Piano className="h-3 w-3" />
-                          MIDI
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                      {pack.bpm && <span>{pack.bpm} BPM</span>}
-                      {pack.key && <span>{pack.key}</span>}
-                      <span>{new Date(pack.created_at).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link to={`/pack/${pack.id}`}>
-                          <Eye className="h-4 w-4 mr-2" />
-                          View
-                        </Link>
-                      </DropdownMenuItem>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <DropdownMenuItem 
-                            onSelect={(e) => e.preventDefault()}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete this dump pack?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This will remove the pack from your library. This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDelete(pack.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ))}
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </Layout>
