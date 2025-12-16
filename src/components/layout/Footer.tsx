@@ -18,26 +18,26 @@ export function Footer() {
             <h4 className="font-semibold mb-3">Platform</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/explore" className="hover:text-foreground transition-colors">Explore</Link></li>
+              <li><Link to="/download" className="hover:text-foreground transition-colors">Download App</Link></li>
               <li><Link to="/auth" className="hover:text-foreground transition-colors">Sign Up</Link></li>
-              <li><Link to="/auth" className="hover:text-foreground transition-colors">Become a Creator</Link></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold mb-3">Support</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="#" className="hover:text-foreground transition-colors">Help Center</Link></li>
-              <li><Link to="#" className="hover:text-foreground transition-colors">Contact</Link></li>
-              <li><Link to="#" className="hover:text-foreground transition-colors">FAQ</Link></li>
+              <li><Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link></li>
+              <li><Link to="/how-to-upload" className="hover:text-foreground transition-colors">How to Upload</Link></li>
+              <li><Link to="/licensing" className="hover:text-foreground transition-colors">Licensing</Link></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold mb-3">Legal</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="#" className="hover:text-foreground transition-colors">Terms</Link></li>
-              <li><Link to="#" className="hover:text-foreground transition-colors">Privacy</Link></li>
-              <li><Link to="#" className="hover:text-foreground transition-colors">Licensing</Link></li>
+              <li><Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link></li>
+              <li><Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link></li>
+              <li><Link to="/licensing" className="hover:text-foreground transition-colors">Licensing</Link></li>
             </ul>
           </div>
         </div>

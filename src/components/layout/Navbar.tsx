@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, User, Menu, X } from "lucide-react";
+import { Search, User, Menu, X, Download } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -51,6 +51,15 @@ export function Navbar() {
         <nav className="hidden md:flex items-center gap-4">
           <Link to="/explore">
             <Button variant="ghost">Explore</Button>
+          </Link>
+          <Link to="/download">
+            <Button variant="ghost" className="gap-2">
+              <Download className="h-4 w-4" />
+              Download App
+            </Button>
+          </Link>
+          <Link to="/faq">
+            <Button variant="ghost">FAQ</Button>
           </Link>
           
           {user ? (
@@ -120,6 +129,15 @@ export function Navbar() {
             <nav className="flex flex-col gap-2">
               <Link to="/explore" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="ghost" className="w-full justify-start">Explore</Button>
+              </Link>
+              <Link to="/download" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="ghost" className="w-full justify-start gap-2">
+                  <Download className="h-4 w-4" />
+                  Download App
+                </Button>
+              </Link>
+              <Link to="/faq" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="ghost" className="w-full justify-start">FAQ</Button>
               </Link>
               
               {user ? (

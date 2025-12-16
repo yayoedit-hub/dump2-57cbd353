@@ -24,6 +24,11 @@ interface Creator {
   license_type: "personal_only" | "commercial_with_credit";
   back_catalog_access: boolean;
   is_active: boolean;
+  soundcloud_url: string | null;
+  spotify_url: string | null;
+  website_url: string | null;
+  instagram_url: string | null;
+  youtube_url: string | null;
 }
 
 interface AuthContextType {

@@ -61,16 +61,21 @@ export type Database = {
           created_at: string
           handle: string
           id: string
+          instagram_url: string | null
           is_active: boolean | null
           license_type: Database["public"]["Enums"]["license_type"] | null
           payout_email: string | null
           price_usd: number | null
+          soundcloud_url: string | null
+          spotify_url: string | null
           stripe_account_id: string | null
           stripe_price_id: string | null
           stripe_product_id: string | null
           tags: string[] | null
           updated_at: string
           user_id: string
+          website_url: string | null
+          youtube_url: string | null
         }
         Insert: {
           back_catalog_access?: boolean | null
@@ -79,16 +84,21 @@ export type Database = {
           created_at?: string
           handle: string
           id?: string
+          instagram_url?: string | null
           is_active?: boolean | null
           license_type?: Database["public"]["Enums"]["license_type"] | null
           payout_email?: string | null
           price_usd?: number | null
+          soundcloud_url?: string | null
+          spotify_url?: string | null
           stripe_account_id?: string | null
           stripe_price_id?: string | null
           stripe_product_id?: string | null
           tags?: string[] | null
           updated_at?: string
           user_id: string
+          website_url?: string | null
+          youtube_url?: string | null
         }
         Update: {
           back_catalog_access?: boolean | null
@@ -97,16 +107,21 @@ export type Database = {
           created_at?: string
           handle?: string
           id?: string
+          instagram_url?: string | null
           is_active?: boolean | null
           license_type?: Database["public"]["Enums"]["license_type"] | null
           payout_email?: string | null
           price_usd?: number | null
+          soundcloud_url?: string | null
+          spotify_url?: string | null
           stripe_account_id?: string | null
           stripe_price_id?: string | null
           stripe_product_id?: string | null
           tags?: string[] | null
           updated_at?: string
           user_id?: string
+          website_url?: string | null
+          youtube_url?: string | null
         }
         Relationships: [
           {
