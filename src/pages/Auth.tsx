@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, AlertCircle, CheckCircle, Info } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const authSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -19,6 +21,7 @@ export default function Auth() {
   const mode = searchParams.get("mode");
   
   const [isSignUp, setIsSignUp] = useState(mode === "creator");
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -27,6 +30,8 @@ export default function Auth() {
   );
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
   
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -37,9 +42,13 @@ export default function Auth() {
     }
   }, [user, navigate]);
 
-  const validateForm = () => {
+  const validateForm = (includePassword = true) => {
     try {
-      authSchema.parse({ email, password });
+      if (includePassword) {
+        authSchema.parse({ email, password });
+      } else {
+        z.string().email("Please enter a valid email").parse(email);
+      }
       setErrors({});
       return true;
     } catch (error) {
@@ -55,6 +64,27 @@ export default function Auth() {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm(false)) return;
+    
+    setLoading(true);
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth?mode=reset`,
+    });
+    
+    if (error) {
+      toast.error(error.message);
+    } else {
+      setResetEmailSent(true);
+      toast.success("Password reset email sent!");
+    }
+    
+    setLoading(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -65,22 +95,48 @@ export default function Auth() {
     if (isSignUp) {
       const { error } = await signUp(email, password, role, displayName);
       if (error) {
-        if (error.message.includes("already registered")) {
-          toast.error("This email is already registered. Please sign in.");
+        // Parse common error messages for better UX
+        const errorMessage = error.message.toLowerCase();
+        
+        if (errorMessage.includes("already registered") || errorMessage.includes("user already exists")) {
+          toast.error("This email is already registered. Please sign in instead.");
+        } else if (errorMessage.includes("invalid email")) {
+          toast.error("Please enter a valid email address.");
+        } else if (errorMessage.includes("weak password") || errorMessage.includes("password")) {
+          toast.error("Password must be at least 6 characters long.");
+        } else if (errorMessage.includes("rate limit")) {
+          toast.error("Too many attempts. Please wait a moment and try again.");
         } else {
-          toast.error(error.message);
+          // Show the actual error for debugging
+          toast.error(`Signup failed: ${error.message}`);
         }
       } else {
-        if (role === "creator" || role === "both") {
-          navigate("/onboarding");
-        } else {
-          navigate("/explore");
-        }
+        // Check if email confirmation is required
+        setSignupSuccess(true);
+        toast.success("Account created! Check your email if confirmation is required.");
+        // After a short delay, navigate if auto-confirm is enabled
+        setTimeout(() => {
+          if (role === "creator" || role === "both") {
+            navigate("/onboarding");
+          } else {
+            navigate("/explore");
+          }
+        }, 1500);
       }
     } else {
       const { error } = await signIn(email, password);
       if (error) {
-        toast.error("Invalid email or password");
+        const errorMessage = error.message.toLowerCase();
+        
+        if (errorMessage.includes("invalid login credentials") || errorMessage.includes("invalid credentials")) {
+          toast.error("Invalid email or password. Please try again.");
+        } else if (errorMessage.includes("email not confirmed")) {
+          toast.error("Please confirm your email before signing in. Check your inbox.");
+        } else if (errorMessage.includes("rate limit")) {
+          toast.error("Too many login attempts. Please wait a moment and try again.");
+        } else {
+          toast.error(`Login failed: ${error.message}`);
+        }
       } else {
         navigate("/");
       }
@@ -88,6 +144,73 @@ export default function Auth() {
     
     setLoading(false);
   };
+
+  // Forgot password view
+  if (isForgotPassword) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <div className="p-4">
+          <button 
+            onClick={() => setIsForgotPassword(false)}
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to sign in
+          </button>
+        </div>
+        
+        <div className="flex-1 flex items-center justify-center px-4 py-12">
+          <div className="w-full max-w-md animate-fade-in">
+            <div className="text-center mb-8">
+              <Link to="/" className="text-3xl font-bold tracking-tight">
+                Dump
+              </Link>
+              <h1 className="mt-6 text-2xl font-semibold">Reset your password</h1>
+              <p className="mt-2 text-muted-foreground">
+                Enter your email and we'll send you a reset link
+              </p>
+            </div>
+            
+            {resetEmailSent ? (
+              <Alert className="border-green-500/50 bg-green-500/10">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <AlertDescription className="text-green-500">
+                  Check your email for the password reset link. It may take a few minutes to arrive.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <form onSubmit={handleForgotPassword} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={`h-12 ${errors.email ? "border-destructive" : ""}`}
+                  />
+                  {errors.email && (
+                    <p className="text-sm text-destructive">{errors.email}</p>
+                  )}
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="w-full h-12"
+                  disabled={loading}
+                >
+                  {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Send reset link
+                </Button>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -113,6 +236,15 @@ export default function Auth() {
                 : "Sign in to access your subscriptions"}
             </p>
           </div>
+          
+          {signupSuccess && (
+            <Alert className="mb-6 border-green-500/50 bg-green-500/10">
+              <CheckCircle className="h-4 w-4 text-green-500" />
+              <AlertDescription className="text-green-500">
+                Account created successfully! Redirecting...
+              </AlertDescription>
+            </Alert>
+          )}
           
           <form onSubmit={handleSubmit} className="space-y-5">
             {isSignUp && (
@@ -145,7 +277,18 @@ export default function Auth() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                {!isSignUp && (
+                  <button
+                    type="button"
+                    onClick={() => setIsForgotPassword(true)}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
               <Input
                 id="password"
                 type="password"
@@ -208,13 +351,91 @@ export default function Auth() {
           <div className="mt-6 text-center">
             <button
               type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setSignupSuccess(false);
+              }}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
             </button>
           </div>
+
+          {/* Dev Debug Panel - only visible in development */}
+          {import.meta.env.DEV && <AuthDebugPanel />}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Debug panel component for development only
+function AuthDebugPanel() {
+  const [debugInfo, setDebugInfo] = useState<{
+    clientInitialized: boolean;
+    supabaseUrl: string;
+    sessionUser: { id: string; email: string } | null;
+    error: string | null;
+  }>({
+    clientInitialized: false,
+    supabaseUrl: '',
+    sessionUser: null,
+    error: null,
+  });
+
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        // Check if client is initialized
+        const url = import.meta.env.VITE_SUPABASE_URL || 'Not set';
+        const maskedUrl = url ? url.replace(/https:\/\/([^.]+)\./, 'https://*****.') : 'Not set';
+        
+        // Get current session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        setDebugInfo({
+          clientInitialized: !!supabase,
+          supabaseUrl: maskedUrl,
+          sessionUser: session?.user ? { id: session.user.id.slice(0, 8) + '...', email: session.user.email || 'N/A' } : null,
+          error: error?.message || null,
+        });
+      } catch (e) {
+        setDebugInfo(prev => ({ ...prev, error: e instanceof Error ? e.message : 'Unknown error' }));
+      }
+    };
+
+    checkStatus();
+  }, []);
+
+  return (
+    <div className="mt-8 p-4 rounded-lg border border-dashed border-border bg-secondary/30">
+      <div className="flex items-center gap-2 mb-3 text-sm font-medium text-muted-foreground">
+        <Info className="h-4 w-4" />
+        Dev Debug Panel
+      </div>
+      <div className="space-y-2 text-xs font-mono">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Client initialized:</span>
+          <span className={debugInfo.clientInitialized ? "text-green-500" : "text-destructive"}>
+            {debugInfo.clientInitialized ? "✓ Yes" : "✗ No"}
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Supabase URL:</span>
+          <span className="text-foreground">{debugInfo.supabaseUrl}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Session user:</span>
+          <span className="text-foreground">
+            {debugInfo.sessionUser ? debugInfo.sessionUser.email : "None"}
+          </span>
+        </div>
+        {debugInfo.error && (
+          <div className="flex justify-between text-destructive">
+            <span>Error:</span>
+            <span>{debugInfo.error}</span>
+          </div>
+        )}
       </div>
     </div>
   );

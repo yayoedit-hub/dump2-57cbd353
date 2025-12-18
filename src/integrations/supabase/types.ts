@@ -139,6 +139,7 @@ export type Database = {
           created_at: string
           creator_id: string
           description: string | null
+          dump_zip_path: string | null
           flp_path: string | null
           id: string
           is_deleted: boolean | null
@@ -157,6 +158,7 @@ export type Database = {
           created_at?: string
           creator_id: string
           description?: string | null
+          dump_zip_path?: string | null
           flp_path?: string | null
           id?: string
           is_deleted?: boolean | null
@@ -175,6 +177,7 @@ export type Database = {
           created_at?: string
           creator_id?: string
           description?: string | null
+          dump_zip_path?: string | null
           flp_path?: string | null
           id?: string
           is_deleted?: boolean | null
