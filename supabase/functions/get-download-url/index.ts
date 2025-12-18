@@ -145,13 +145,36 @@ Deno.serve(async (req) => {
       )
     }
 
-    console.log('Generating signed URL for:', filePath)
+    // If filePath is a full URL (from desktop app), extract just the storage path
+    // Desktop app stores: https://xxx.supabase.co/storage/v1/object/sign/dumps/{user_id}/{filename}?token=...
+    // We need just: {user_id}/{filename}
+    let storagePath = filePath
+    if (filePath.startsWith('http')) {
+      try {
+        const url = new URL(filePath)
+        const pathParts = url.pathname.split('/storage/v1/object/sign/dumps/')
+        if (pathParts.length > 1) {
+          storagePath = pathParts[1]
+        } else {
+          // Try alternative path format: /storage/v1/object/public/dumps/
+          const publicParts = url.pathname.split('/storage/v1/object/public/dumps/')
+          if (publicParts.length > 1) {
+            storagePath = publicParts[1]
+          }
+        }
+        console.log('Extracted storage path from URL:', storagePath)
+      } catch (e) {
+        console.error('Failed to parse URL:', e)
+      }
+    }
+
+    console.log('Generating signed URL for path:', storagePath)
 
     // Generate signed URL (valid for 1 hour)
     const { data: signedUrlData, error: signedUrlError } = await supabaseAdmin
       .storage
       .from('dumps')
-      .createSignedUrl(filePath, 3600)
+      .createSignedUrl(storagePath, 3600)
 
     if (signedUrlError || !signedUrlData) {
       console.error('Signed URL error:', signedUrlError)
