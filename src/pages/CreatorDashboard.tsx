@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProfileCompleteness } from "@/components/ProfileCompleteness";
+import { BackendDiagnostics } from "@/components/BackendDiagnostics";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -54,6 +55,8 @@ interface DumpPack {
   pack_type: "flp_only" | "zipped_project" | "compatible_pack";
   created_at: string;
   preview_path: string | null;
+  dump_zip_path: string | null;
+  project_zip_path: string | null;
   stems_zip_path: string | null;
   midi_zip_path: string | null;
 }
@@ -109,7 +112,7 @@ export default function CreatorDashboard() {
 
     const { data: packsData } = await supabase
       .from("dump_packs")
-      .select("id, title, description, bpm, key, tags, pack_type, created_at, preview_path, stems_zip_path, midi_zip_path")
+      .select("id, title, description, bpm, key, tags, pack_type, created_at, preview_path, dump_zip_path, project_zip_path, stems_zip_path, midi_zip_path")
       .eq("creator_id", creator.id)
       .eq("is_deleted", false)
       .order("created_at", { ascending: false });
@@ -428,6 +431,9 @@ export default function CreatorDashboard() {
                 </Button>
               </Link>
             </div>
+
+            {/* Backend Diagnostics */}
+            <BackendDiagnostics />
           </div>
         </div>
 

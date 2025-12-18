@@ -29,6 +29,7 @@ interface DumpPack {
   tags: string[];
   pack_type: "flp_only" | "zipped_project" | "compatible_pack";
   preview_path: string | null;
+  dump_zip_path: string | null;
   project_zip_path: string | null;
   flp_path: string | null;
   stems_zip_path: string | null;
@@ -216,7 +217,8 @@ export default function PackDetail() {
   }
 
   const displayName = creator.profiles?.display_name || creator.handle;
-  const hasProject = pack.project_zip_path || pack.flp_path;
+  // Check for project file using dump_zip_path (desktop app) or fallback to project_zip_path/flp_path
+  const hasProject = pack.dump_zip_path || pack.project_zip_path || pack.flp_path;
 
   return (
     <Layout>

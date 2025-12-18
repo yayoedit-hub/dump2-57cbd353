@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
     // Fetch dump pack
     const { data: pack, error: packError } = await supabaseAdmin
       .from('dump_packs')
-      .select('id, creator_id, project_zip_path, flp_path, stems_zip_path, midi_zip_path')
+      .select('id, creator_id, dump_zip_path, project_zip_path, flp_path, stems_zip_path, midi_zip_path')
       .eq('id', dump_pack_id)
       .eq('is_deleted', false)
       .single()
@@ -124,10 +124,11 @@ Deno.serve(async (req) => {
     }
 
     // Determine file path based on file_type
+    // Priority: dump_zip_path (desktop app) > project_zip_path > flp_path
     let filePath: string | null = null
     switch (file_type) {
       case 'project':
-        filePath = pack.project_zip_path || pack.flp_path
+        filePath = pack.dump_zip_path || pack.project_zip_path || pack.flp_path
         break
       case 'stems':
         filePath = pack.stems_zip_path
