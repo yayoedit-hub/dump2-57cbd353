@@ -28,7 +28,7 @@ interface DumpPack {
   key: string | null;
   tags: string[];
   pack_type: "flp_only" | "zipped_project" | "compatible_pack";
-  preview_path: string;
+  preview_path: string | null;
   project_zip_path: string | null;
   flp_path: string | null;
   stems_zip_path: string | null;
@@ -137,7 +137,7 @@ export default function PackDetail() {
   };
 
   const handlePlayPause = () => {
-    if (!pack) return;
+    if (!pack || !pack.preview_path) return;
 
     if (isPlaying && audioRef.current) {
       audioRef.current.pause();
@@ -270,28 +270,46 @@ export default function PackDetail() {
 
         {/* Preview Player */}
         <div className="p-6 rounded-xl border border-border bg-card mb-8">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handlePlayPause}
-              className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors shrink-0"
-            >
-              {isPlaying ? (
-                <Pause className="h-6 w-6" />
-              ) : (
-                <Play className="h-6 w-6 ml-0.5" />
-              )}
-            </button>
-            <div className="flex-1">
-              <p className="font-medium">Preview</p>
-              <p className="text-sm text-muted-foreground">
-                {isPlaying ? "Now playing..." : "Click to play preview"}
-              </p>
+          {pack.preview_path ? (
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handlePlayPause}
+                className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors shrink-0"
+              >
+                {isPlaying ? (
+                  <Pause className="h-6 w-6" />
+                ) : (
+                  <Play className="h-6 w-6 ml-0.5" />
+                )}
+              </button>
+              <div className="flex-1">
+                <p className="font-medium">Preview</p>
+                <p className="text-sm text-muted-foreground">
+                  {isPlaying ? "Now playing..." : "Click to play preview"}
+                </p>
+              </div>
+              <div className="text-right text-sm text-muted-foreground">
+                {pack.bpm && <p>{pack.bpm} BPM</p>}
+                {pack.key && <p>{pack.key}</p>}
+              </div>
             </div>
-            <div className="text-right text-sm text-muted-foreground">
-              {pack.bpm && <p>{pack.bpm} BPM</p>}
-              {pack.key && <p>{pack.key}</p>}
+          ) : (
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center shrink-0">
+                <Music className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium">No preview available</p>
+                <p className="text-sm text-muted-foreground">
+                  This pack doesn't have a preview audio file
+                </p>
+              </div>
+              <div className="text-right text-sm text-muted-foreground">
+                {pack.bpm && <p>{pack.bpm} BPM</p>}
+                {pack.key && <p>{pack.key}</p>}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Description */}

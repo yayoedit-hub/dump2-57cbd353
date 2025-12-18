@@ -2,148 +2,152 @@ import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { ArrowLeft, FileArchive, Music, Folder, Info } from "lucide-react";
+import { ArrowLeft, Download, LogIn, Folder, Upload, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const HowToUpload = () => {
   return (
     <Layout>
       <div className="container max-w-3xl py-12">
-        <Link to="/creator/upload">
+        <Link to="/dashboard">
           <Button variant="ghost" className="mb-6 gap-2">
             <ArrowLeft className="h-4 w-4" />
-            Back to Upload
+            Back to Dashboard
           </Button>
         </Link>
 
-        <h1 className="text-3xl font-bold mb-2">How to Upload a Dump Pack</h1>
+        <h1 className="text-3xl font-bold mb-2">How to Upload with Dump App</h1>
         <p className="text-muted-foreground mb-8">
-          Everything you need to know about preparing and uploading your packs.
+          Uploading happens through the Dump desktop app. Here's how to get started.
         </p>
 
         <div className="space-y-6">
-          {/* Preferred Format */}
+          {/* Step 1 */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileArchive className="h-5 w-5" />
-                Preferred Format: FL Studio Zipped Project
-                <Badge variant="default" className="ml-2">Recommended</Badge>
+              <CardTitle className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                  1
+                </div>
+                <Download className="h-5 w-5" />
+                Download & Install
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Get the Dump App for your platform:
+              </p>
+              <div className="flex gap-3">
+                <Link to="/download">
+                  <Button variant="outline">Download for Windows</Button>
+                </Link>
+                <Link to="/download">
+                  <Button variant="outline">Download for macOS</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Step 2 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                  2
+                </div>
+                <LogIn className="h-5 w-5" />
+                Sign In
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Open the app and sign in with <strong className="text-foreground">the same account</strong> you use on this website.
+                This links your uploads to your creator profile.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Step 3 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                  3
+                </div>
+                <Folder className="h-5 w-5" />
+                Create Dump Folder
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Click <strong className="text-foreground">"Create Dump folder"</strong> in the app.
+                This creates a special folder on your computer where you'll save your FL Studio exports.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Step 4 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                  4
+                </div>
+                <Upload className="h-5 w-5" />
+                Export Your Project
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p>
-                The best way to share your projects is using FL Studio's built-in export feature:
+              <p className="text-muted-foreground">
+                In FL Studio, export your project to the Dump folder:
               </p>
               <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
-                <li>In FL Studio, go to <strong className="text-foreground">File → Export → Zipped loop package</strong></li>
-                <li>This creates a .zip file containing your .flp and all samples</li>
-                <li>Upload this .zip as your "Project File"</li>
+                <li>Go to <strong className="text-foreground">File → Export → Zipped loop package</strong></li>
+                <li>Save to your Dump folder</li>
+                <li>Optionally render a preview audio (30-90 seconds)</li>
               </ol>
-              <p className="text-sm text-muted-foreground">
-                This ensures subscribers can open your project without missing samples.
-              </p>
+              <Badge variant="secondary" className="mt-2">Recommended: Zipped loop package includes all samples</Badge>
             </CardContent>
           </Card>
 
-          {/* Preview Requirement */}
+          {/* Step 5 */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Music className="h-5 w-5" />
-                Preview Audio (Required)
+              <CardTitle className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                  5
+                </div>
+                <CheckCircle className="h-5 w-5" />
+                Auto-Upload
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <p>
-                Every pack needs a preview so subscribers can hear what they're getting:
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                <li><strong className="text-foreground">Length:</strong> 30–90 seconds</li>
-                <li><strong className="text-foreground">Format:</strong> MP3 or WAV</li>
-                <li><strong className="text-foreground">Content:</strong> Best section of your track or a quick mixdown</li>
-              </ul>
-              <p className="text-sm text-muted-foreground">
-                Previews are publicly streamable — they help attract subscribers.
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Optional Files */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Folder className="h-5 w-5" />
-                Optional: Stems & MIDI
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p>
-                For "Compatible Packs," you can include additional files:
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                <li><strong className="text-foreground">Stems (.zip):</strong> Individual audio tracks (drums, bass, melody, etc.)</li>
-                <li><strong className="text-foreground">MIDI (.zip):</strong> MIDI files for melodies, chords, drums</li>
-              </ul>
-              <p className="text-sm text-muted-foreground">
-                These help users who don't have FL Studio or want to remix in other DAWs.
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Pack Types */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Info className="h-5 w-5" />
-                Pack Types Explained
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h4 className="font-medium">FLP Only</h4>
-                <p className="text-sm text-muted-foreground">
-                  Just the .flp file. Best for projects using only stock FL plugins and samples.
-                </p>
-              </div>
-              <div>
-                <h4 className="font-medium">Zipped Project</h4>
-                <p className="text-sm text-muted-foreground">
-                  FL Studio's zipped export with .flp + all samples. The preferred format.
-                </p>
-              </div>
-              <div>
-                <h4 className="font-medium">Compatible Pack</h4>
-                <p className="text-sm text-muted-foreground">
-                  Zipped project plus stems and/or MIDI. Works for users on any DAW — they can use 
-                  the stems even without FL Studio.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Naming Tips */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Suggested Naming</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p>Help subscribers find and organize your packs:</p>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                <li><strong className="text-foreground">Title:</strong> Descriptive name (e.g., "Dark Trap Loop 140 BPM")</li>
-                <li><strong className="text-foreground">Tags:</strong> Genre, mood, instruments used</li>
-                <li><strong className="text-foreground">BPM & Key:</strong> Always include if known</li>
-              </ul>
-              <p className="text-sm text-muted-foreground">
-                Good metadata helps your packs get discovered and used.
+            <CardContent>
+              <p className="text-muted-foreground">
+                The app automatically detects new files and uploads them. Your pack will appear on your profile within seconds.
+                You can edit metadata (title, tags, BPM) from the website after upload.
               </p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="mt-8 text-center">
-          <Link to="/creator/upload">
-            <Button size="lg">Start Uploading</Button>
+        <div className="mt-8 p-6 rounded-xl border border-border bg-card">
+          <h3 className="font-semibold mb-2">Need Help?</h3>
+          <p className="text-sm text-muted-foreground">
+            If you have questions about uploading, check our FAQ or reach out on Discord.
+          </p>
+        </div>
+
+        <div className="mt-8 flex justify-center gap-4">
+          <Link to="/download">
+            <Button size="lg" className="gap-2">
+              <Download className="h-4 w-4" />
+              Get Dump App
+            </Button>
+          </Link>
+          <Link to="/dashboard">
+            <Button size="lg" variant="outline">
+              Back to Dashboard
+            </Button>
           </Link>
         </div>
       </div>
