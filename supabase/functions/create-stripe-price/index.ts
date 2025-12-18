@@ -44,7 +44,9 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id });
 
     const { creator_id, price_usd } = await req.json();
-    if (!creator_id || !price_usd) throw new Error("creator_id and price_usd are required");
+    if (!creator_id || price_usd === undefined || price_usd === null || price_usd < 1) {
+      throw new Error("creator_id is required and price_usd must be at least $1 for Stripe subscriptions");
+    }
     logStep("Request body", { creator_id, price_usd });
 
     // Verify the creator belongs to this user

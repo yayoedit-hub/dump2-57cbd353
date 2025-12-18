@@ -214,13 +214,16 @@ export default function Settings() {
         return;
       }
 
+      const parsedPrice = priceUsd === "" ? 5 : parseInt(priceUsd);
+      const finalPrice = isNaN(parsedPrice) ? 5 : parsedPrice;
+
       const { data: newCreator, error } = await supabase
         .from("creators")
         .insert({
           user_id: user.id,
           handle: handle.trim().toLowerCase(),
           bio: bio.trim() || null,
-          price_usd: parseInt(priceUsd) || 5,
+          price_usd: finalPrice,
           tags: selectedTags,
           license_type: licenseType,
           back_catalog_access: backCatalogAccess,
@@ -236,16 +239,20 @@ export default function Settings() {
         .update({ role: role === "subscriber" ? "creator" : "both" })
         .eq("id", user.id);
 
-      // Create Stripe product and price
-      const { error: stripeError } = await supabase.functions.invoke("create-stripe-price", {
-        body: { creator_id: newCreator.id, price_usd: parseInt(priceUsd) || 5 }
-      });
+      // Create Stripe product and price (only if price > 0)
+      if (finalPrice > 0) {
+        const { error: stripeError } = await supabase.functions.invoke("create-stripe-price", {
+          body: { creator_id: newCreator.id, price_usd: finalPrice }
+        });
 
-      if (stripeError) {
-        console.error("Stripe setup error:", stripeError);
-        toast.warning("Creator profile created, but Stripe setup failed. Update your price in settings to retry.");
+        if (stripeError) {
+          console.error("Stripe setup error:", stripeError);
+          toast.warning("Creator profile created, but Stripe setup failed. Update your price in settings to retry.");
+        } else {
+          toast.success("Creator profile created with Stripe pricing!");
+        }
       } else {
-        toast.success("Creator profile created with Stripe pricing!");
+        toast.success("Creator profile created! Subscriptions are free.");
       }
 
       await refreshProfile();
@@ -315,20 +322,32 @@ export default function Settings() {
         const { data } = supabase.storage.from("avatars").getPublicUrl(path);
         bannerUrl = data.publicUrl;
       }
-      const newPrice = parseInt(priceUsd) || 5;
+      const parsedPrice = priceUsd === "" ? 5 : parseInt(priceUsd);
+      const newPrice = isNaN(parsedPrice) ? 5 : parsedPrice;
       const priceChanged = newPrice !== creator.price_usd;
 
-      // If price changed, create new Stripe price
+      // If price changed, update Stripe price (only if price > 0)
       if (priceChanged) {
-        const { data, error: stripeError } = await supabase.functions.invoke("create-stripe-price", {
-          body: { creator_id: creator.id, price_usd: newPrice }
-        });
+        if (newPrice > 0) {
+          const { data, error: stripeError } = await supabase.functions.invoke("create-stripe-price", {
+            body: { creator_id: creator.id, price_usd: newPrice }
+          });
 
-        if (stripeError) {
-          throw new Error(stripeError.message || "Failed to update Stripe price");
+          if (stripeError) {
+            throw new Error(stripeError.message || "Failed to update Stripe price");
+          }
+
+          toast.success("Stripe pricing updated!");
+        } else {
+          // Update price_usd to 0 directly (no Stripe price needed for free)
+          const { error: updateError } = await supabase
+            .from("creators")
+            .update({ price_usd: 0 })
+            .eq("id", creator.id);
+          
+          if (updateError) throw updateError;
+          toast.success("Subscriptions are now free!");
         }
-
-        toast.success("Stripe pricing updated!");
       }
       
       // Update creator fields including social links and banner
