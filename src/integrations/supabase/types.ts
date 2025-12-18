@@ -146,7 +146,7 @@ export type Database = {
           key: string | null
           midi_zip_path: string | null
           pack_type: Database["public"]["Enums"]["pack_type"]
-          preview_path: string
+          preview_path: string | null
           project_zip_path: string | null
           stems_zip_path: string | null
           tags: string[] | null
@@ -165,7 +165,7 @@ export type Database = {
           key?: string | null
           midi_zip_path?: string | null
           pack_type: Database["public"]["Enums"]["pack_type"]
-          preview_path: string
+          preview_path?: string | null
           project_zip_path?: string | null
           stems_zip_path?: string | null
           tags?: string[] | null
@@ -184,7 +184,7 @@ export type Database = {
           key?: string | null
           midi_zip_path?: string | null
           pack_type?: Database["public"]["Enums"]["pack_type"]
-          preview_path?: string
+          preview_path?: string | null
           project_zip_path?: string | null
           stems_zip_path?: string | null
           tags?: string[] | null
