@@ -163,14 +163,40 @@ export default function CreatorProfile() {
     
     if (!creator) return;
 
-    if (!creator.stripe_price_id) {
-      toast.error("This creator hasn't set up payments yet");
-      return;
-    }
-
     setSubscribing(true);
 
     try {
+      // Handle free subscriptions directly
+      if (creator.price_usd === 0) {
+        const { error: subError } = await supabase
+          .from("subscriptions")
+          .insert({
+            subscriber_id: user.id,
+            creator_id: creator.id,
+            status: "active",
+          });
+
+        if (subError) {
+          if (subError.code === "23505") {
+            toast.error("You already have a subscription to this creator");
+          } else {
+            throw subError;
+          }
+        } else {
+          toast.success(`Subscribed to ${creator.profiles?.display_name || creator.handle}!`);
+          setIsSubscribed(true);
+        }
+        setSubscribing(false);
+        return;
+      }
+
+      // Paid subscriptions go through Stripe
+      if (!creator.stripe_price_id) {
+        toast.error("This creator hasn't set up payments yet");
+        setSubscribing(false);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: { creator_id: creator.id }
       });
@@ -186,7 +212,7 @@ export default function CreatorProfile() {
       }
     } catch (error) {
       console.error("Subscribe error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to start checkout");
+      toast.error(error instanceof Error ? error.message : "Failed to subscribe");
       setSubscribing(false);
     }
   };
@@ -278,8 +304,14 @@ export default function CreatorProfile() {
           
           <div className="flex flex-col items-start md:items-end gap-3">
             <div className="text-right">
-              <span className="text-2xl font-bold">${creator.price_usd}</span>
-              <span className="text-muted-foreground">/month</span>
+              {creator.price_usd === 0 ? (
+                <span className="text-2xl font-bold text-green-500">FREE</span>
+              ) : (
+                <>
+                  <span className="text-2xl font-bold">${creator.price_usd}</span>
+                  <span className="text-muted-foreground">/month</span>
+                </>
+              )}
             </div>
             
             <div className="flex gap-2">
