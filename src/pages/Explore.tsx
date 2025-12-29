@@ -332,10 +332,16 @@ export default function Explore() {
                           </h3>
                           <p className="text-sm text-muted-foreground">@{creator.handle}</p>
                         </div>
-                        <div className="text-right">
-                          <span className="font-bold">${creator.price_usd}</span>
-                          <span className="text-sm text-muted-foreground">/mo</span>
-                        </div>
+                        {creator.price_usd === 0 ? (
+                          <Badge variant="free" className="px-2.5 py-1 text-xs">
+                            Free
+                          </Badge>
+                        ) : (
+                          <div className="text-right">
+                            <span className="font-bold">${creator.price_usd}</span>
+                            <span className="text-sm text-muted-foreground">/mo</span>
+                          </div>
+                        )}
                       </div>
                       
                       <p className="text-sm text-muted-foreground mb-4 line-clamp-2">

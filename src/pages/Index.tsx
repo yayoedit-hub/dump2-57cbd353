@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/layout/Layout";
 import { ArrowRight, Music, Download, Sparkles } from "lucide-react";
 
@@ -151,10 +152,16 @@ export default function Index() {
                       </h3>
                       <p className="text-sm text-muted-foreground">@{creator.handle}</p>
                     </div>
-                    <div className="text-right">
-                      <span className="font-bold">${creator.price_usd}</span>
-                      <span className="text-sm text-muted-foreground">/mo</span>
-                    </div>
+                    {creator.price_usd === 0 ? (
+                      <Badge variant="free" className="px-2.5 py-1 text-xs">
+                        Free
+                      </Badge>
+                    ) : (
+                      <div className="text-right">
+                        <span className="font-bold">${creator.price_usd}</span>
+                        <span className="text-sm text-muted-foreground">/mo</span>
+                      </div>
+                    )}
                   </div>
                   
                   <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
