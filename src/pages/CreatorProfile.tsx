@@ -303,14 +303,16 @@ export default function CreatorProfile() {
           </div>
           
           <div className="flex flex-col items-start md:items-end gap-3">
-            <div className="text-right">
+            <div className="flex items-center gap-2">
               {creator.price_usd === 0 ? (
-                <span className="text-2xl font-bold text-green-500">FREE</span>
+                <Badge variant="free" className="px-4 py-1.5 text-sm">
+                  Free to Subscribe
+                </Badge>
               ) : (
-                <>
+                <div className="text-right">
                   <span className="text-2xl font-bold">${creator.price_usd}</span>
                   <span className="text-muted-foreground">/month</span>
-                </>
+                </div>
               )}
             </div>
             
