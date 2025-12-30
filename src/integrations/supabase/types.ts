@@ -199,6 +199,13 @@ export type Database = {
             referencedRelation: "creators"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "dump_packs_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -316,6 +323,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "subscriptions_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "subscriptions_subscriber_id_fkey"
             columns: ["subscriber_id"]
             isOneToOne: false
@@ -326,7 +340,74 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      creators_public: {
+        Row: {
+          back_catalog_access: boolean | null
+          banner_url: string | null
+          bio: string | null
+          created_at: string | null
+          handle: string | null
+          id: string | null
+          instagram_url: string | null
+          is_active: boolean | null
+          license_type: Database["public"]["Enums"]["license_type"] | null
+          price_usd: number | null
+          soundcloud_url: string | null
+          spotify_url: string | null
+          tags: string[] | null
+          updated_at: string | null
+          user_id: string | null
+          website_url: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          back_catalog_access?: boolean | null
+          banner_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          handle?: string | null
+          id?: string | null
+          instagram_url?: string | null
+          is_active?: boolean | null
+          license_type?: Database["public"]["Enums"]["license_type"] | null
+          price_usd?: number | null
+          soundcloud_url?: string | null
+          spotify_url?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          website_url?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          back_catalog_access?: boolean | null
+          banner_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          handle?: string | null
+          id?: string | null
+          instagram_url?: string | null
+          is_active?: boolean | null
+          license_type?: Database["public"]["Enums"]["license_type"] | null
+          price_usd?: number | null
+          soundcloud_url?: string | null
+          spotify_url?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          website_url?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creators_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
