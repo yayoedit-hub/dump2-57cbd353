@@ -65,10 +65,28 @@ export default function Explore() {
   const fetchCreators = async () => {
     setLoading(true);
     
+    // SECURITY: Explicitly select only non-sensitive columns
+    // Do NOT select: stripe_account_id, stripe_product_id, stripe_price_id, payout_email
     let query = supabase
       .from("creators")
       .select(`
-        *,
+        id,
+        handle,
+        bio,
+        tags,
+        banner_url,
+        price_usd,
+        license_type,
+        back_catalog_access,
+        user_id,
+        is_active,
+        created_at,
+        updated_at,
+        soundcloud_url,
+        spotify_url,
+        website_url,
+        instagram_url,
+        youtube_url,
         profiles:user_id (
           display_name,
           avatar_url
