@@ -16,6 +16,12 @@ serve(async (req) => {
     return new Response("Server configuration error", { status: 500 });
   }
 
+  // SECURITY FIX: Require webhook secret - never process unverified events
+  if (!webhookSecret) {
+    logStep("ERROR", { message: "STRIPE_WEBHOOK_SECRET not configured - rejecting request" });
+    return new Response("Webhook secret not configured", { status: 500 });
+  }
+
   const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
   const supabaseAdmin = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
@@ -26,18 +32,19 @@ serve(async (req) => {
     const body = await req.text();
     let event: Stripe.Event;
 
-    // Verify webhook signature if secret is set
-    if (webhookSecret) {
-      const signature = req.headers.get("stripe-signature");
-      if (!signature) {
-        logStep("ERROR", { message: "No signature provided" });
-        return new Response("No signature", { status: 400 });
-      }
+    // SECURITY: Always verify webhook signature
+    const signature = req.headers.get("stripe-signature");
+    if (!signature) {
+      logStep("ERROR", { message: "No stripe-signature header provided" });
+      return new Response("Missing signature", { status: 401 });
+    }
+
+    try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-    } else {
-      // For testing without webhook secret
-      event = JSON.parse(body);
-      logStep("WARNING: No webhook secret configured, skipping signature verification");
+    } catch (signatureError) {
+      const errorMessage = signatureError instanceof Error ? signatureError.message : String(signatureError);
+      logStep("ERROR: Signature verification failed", { message: errorMessage });
+      return new Response("Invalid signature", { status: 401 });
     }
 
     logStep("Event received", { type: event.type, id: event.id });
