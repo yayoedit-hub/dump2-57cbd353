@@ -85,11 +85,30 @@ export default function CreatorProfile() {
   const fetchCreatorData = async () => {
     setLoading(true);
 
-    // Fetch creator
+    // Fetch creator - SECURITY: Explicitly select only non-sensitive columns
+    // Do NOT select: stripe_account_id, stripe_product_id, payout_email
+    // Note: stripe_price_id is needed for checkout functionality
     const { data: creatorData, error: creatorError } = await supabase
       .from("creators")
       .select(`
-        *,
+        id,
+        handle,
+        bio,
+        tags,
+        banner_url,
+        price_usd,
+        license_type,
+        back_catalog_access,
+        user_id,
+        is_active,
+        created_at,
+        updated_at,
+        soundcloud_url,
+        spotify_url,
+        website_url,
+        instagram_url,
+        youtube_url,
+        stripe_price_id,
         profiles:user_id (
           display_name,
           avatar_url
