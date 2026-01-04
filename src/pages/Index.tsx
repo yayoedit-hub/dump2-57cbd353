@@ -55,7 +55,7 @@ export default function Index() {
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Dump Packs: unfinished FL Studio projects, optional stems + MIDI, 
+              Dump Packs: unfinished projects from any DAW, optional stems + MIDI, 
               always with previews. Learn, flip, and finish tracks from your favorite producers.
             </p>
             
@@ -101,7 +101,7 @@ export default function Index() {
               </div>
               <h3 className="text-xl font-semibold mb-2">2. Download</h3>
               <p className="text-muted-foreground">
-                Get FL Studio projects, stems, and MIDI files from dumps you like.
+                Get project files, stems, and MIDI files from dumps you like.
               </p>
             </div>
             

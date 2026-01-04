@@ -9,15 +9,15 @@ import {
 const faqs = [
   {
     question: "What is Dump?",
-    answer: "Dump is a subscription platform where producers share their unfinished FL Studio projects, stems, and MIDI files. Subscribers get access to a creator's entire library of 'dump packs' – beats that didn't make the cut but are perfect for learning, flipping, or finishing."
+    answer: "Dump is a subscription platform where producers share their unfinished projects, stems, and MIDI files. Works with all DAWs including FL Studio, Ableton, Logic, and more. Subscribers get access to a creator's entire library of 'dump packs' – beats that didn't make the cut but are perfect for learning, flipping, or finishing."
   },
   {
     question: "What is a Dump Pack?",
-    answer: "A Dump Pack is an upload from a creator containing unfinished music project files. Each pack includes at minimum a preview audio file (30-90 seconds) and can include: an FL Studio project file (.flp), a zipped FL Studio project (with all samples), optional stems (WAV audio files), and optional MIDI files."
+    answer: "A Dump Pack is an upload from a creator containing unfinished music project files. Each pack includes at minimum a preview audio file (30-90 seconds) and can include: DAW project files, zipped projects (with all samples), optional stems (WAV audio files), and optional MIDI files."
   },
   {
     question: "Why do I need the desktop app to upload?",
-    answer: "The Dump desktop app handles the complexity of packaging FL Studio projects correctly. It automatically organizes your files, generates preview audio, extracts metadata like BPM and key, and ensures everything is properly formatted for subscribers to download and use."
+    answer: "The Dump desktop app handles the complexity of packaging projects correctly. It automatically organizes your files, generates preview audio, extracts metadata like BPM and key, and ensures everything is properly formatted for subscribers to download and use."
   },
   {
     question: "What do subscriptions give me?",
@@ -28,8 +28,8 @@ const faqs = [
     answer: "It depends on the creator's license settings. By default, dump packs are for personal use only. Some creators allow commercial use with credit. Always check the license type on a creator's profile before using their content commercially."
   },
   {
-    question: "What software do I need?",
-    answer: "To use dump packs, you'll need FL Studio (any version). Some packs may use third-party plugins – creators should note any required plugins in their pack descriptions. Stems and MIDI files can be used in any DAW."
+    question: "What DAWs are supported?",
+    answer: "Dump supports all major DAWs! While project files are DAW-specific, stems (WAV) and MIDI files work universally. Creators can upload projects from FL Studio, Ableton Live, Logic Pro, and more."
   },
   {
     question: "Can I cancel my subscription?",
