@@ -65,10 +65,10 @@ export default function Explore() {
   const fetchCreators = async () => {
     setLoading(true);
     
-    // SECURITY: Explicitly select only non-sensitive columns
-    // Do NOT select: stripe_account_id, stripe_product_id, stripe_price_id, payout_email
+    // SECURITY: Use creators_public view which excludes sensitive data
+    // (stripe_account_id, stripe_product_id, stripe_price_id, payout_email)
     let query = supabase
-      .from("creators")
+      .from("creators_public")
       .select(`
         id,
         handle,
