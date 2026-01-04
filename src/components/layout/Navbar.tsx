@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Search, User, Menu, X, Download } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "next-themes";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,12 +12,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import logoDark from "@/assets/logo-dark.png";
+import logoLight from "@/assets/logo-light.png";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const { resolvedTheme } = useTheme();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,12 +29,16 @@ export function Navbar() {
     }
   };
 
+  // Use light logo on dark background, dark logo on light background
+  const logo = resolvedTheme === "dark" ? logoLight : logoDark;
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <span className="text-2xl font-bold tracking-tight">Dump</span>
+          <img src={logo} alt="dump.media" className="h-8 w-auto" />
+          <span className="text-xl font-bold tracking-tight">dump.media</span>
         </Link>
 
         {/* Desktop Navigation */}

@@ -1,13 +1,20 @@
 import { Link } from "react-router-dom";
+import { useTheme } from "next-themes";
+import logoDark from "@/assets/logo-dark.png";
+import logoLight from "@/assets/logo-light.png";
 
 export function Footer() {
+  const { resolvedTheme } = useTheme();
+  const logo = resolvedTheme === "dark" ? logoLight : logoDark;
+
   return (
     <footer className="border-t border-border bg-background">
       <div className="container py-8 md:py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
-            <Link to="/" className="text-xl font-bold tracking-tight">
-              Dump
+            <Link to="/" className="flex items-center gap-2">
+              <img src={logo} alt="dump.media" className="h-6 w-auto" />
+              <span className="text-xl font-bold tracking-tight">dump.media</span>
             </Link>
             <p className="mt-2 text-sm text-muted-foreground">
               Subscribe to producers' unwanted beats and unfinished projects.
@@ -43,7 +50,7 @@ export function Footer() {
         </div>
         
         <div className="mt-8 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Dump. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} dump.media. All rights reserved.</p>
           <p>Made for producers, by producers.</p>
         </div>
       </div>
