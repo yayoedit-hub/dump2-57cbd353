@@ -17,7 +17,7 @@ export function Footer() {
               <span className="text-xl font-bold tracking-tight">dump.media</span>
             </Link>
             <p className="mt-2 text-sm text-muted-foreground">
-              Subscribe to producers' unwanted beats and unfinished projects.
+              Subscribe to producers' unfinished projects. For all DAWs.
             </p>
           </div>
           
