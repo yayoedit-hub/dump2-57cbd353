@@ -31,7 +31,8 @@ interface Creator {
   license_type: "personal_only" | "commercial_with_credit";
   back_catalog_access: boolean;
   user_id: string;
-  stripe_price_id: string | null;
+  // Note: stripe_price_id is NOT in creators_public view - we don't need it on client side
+  // The edge function handles Stripe pricing server-side
   soundcloud_url: string | null;
   spotify_url: string | null;
   website_url: string | null;
@@ -85,11 +86,11 @@ export default function CreatorProfile() {
   const fetchCreatorData = async () => {
     setLoading(true);
 
-    // Fetch creator - SECURITY: Explicitly select only non-sensitive columns
-    // Do NOT select: stripe_account_id, stripe_product_id, payout_email
-    // Note: stripe_price_id is needed for checkout functionality
+    // SECURITY: Use creators_public view which excludes sensitive data
+    // (stripe_account_id, stripe_product_id, payout_email)
+    // Note: stripe_price_id is NOT in the public view - we need to fetch it separately if needed for paid creators
     const { data: creatorData, error: creatorError } = await supabase
-      .from("creators")
+      .from("creators_public")
       .select(`
         id,
         handle,
@@ -108,7 +109,6 @@ export default function CreatorProfile() {
         website_url,
         instagram_url,
         youtube_url,
-        stripe_price_id,
         profiles:user_id (
           display_name,
           avatar_url
@@ -209,13 +209,7 @@ export default function CreatorProfile() {
         return;
       }
 
-      // Paid subscriptions go through Stripe
-      if (!creator.stripe_price_id) {
-        toast.error("This creator hasn't set up payments yet");
-        setSubscribing(false);
-        return;
-      }
-
+      // Paid subscriptions go through Stripe - the edge function will verify pricing server-side
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: { creator_id: creator.id }
       });

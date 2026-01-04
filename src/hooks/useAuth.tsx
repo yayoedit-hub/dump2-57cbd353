@@ -65,11 +65,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (profileData) {
         setProfile(profileData as Profile);
 
-        // Check if user is a creator
+        // Check if user is a creator - use explicit column selection to avoid exposing stripe data
+        // Note: For the user's own creator profile, we only need display data, not payment info
         if (profileData.role === "creator" || profileData.role === "both") {
           const { data: creatorData } = await supabase
             .from("creators")
-            .select("*")
+            .select(`
+              id,
+              user_id,
+              handle,
+              bio,
+              tags,
+              banner_url,
+              price_usd,
+              license_type,
+              back_catalog_access,
+              is_active,
+              soundcloud_url,
+              spotify_url,
+              website_url,
+              instagram_url,
+              youtube_url
+            `)
             .eq("user_id", userId)
             .maybeSingle();
 
