@@ -46,12 +46,12 @@ export default function Index() {
           <div className="max-w-3xl mx-auto text-center stagger-children">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary text-sm font-medium mb-6">
               <Music className="h-4 w-4" />
-              For FL Studio Producers
+              For All DAWs — FL Studio, Ableton, Logic & more
             </span>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
               Subscribe to producers'<br />
-              <span className="text-muted-foreground">unwanted beats</span>
+              <span className="text-muted-foreground">unfinished projects</span>
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
@@ -203,7 +203,7 @@ export default function Index() {
               </Button>
             </Link>
             <Link to="/auth?mode=creator">
-              <Button size="xl" variant="outline" className="font-semibold border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
+              <Button size="xl" variant="secondary" className="font-semibold bg-primary-foreground text-primary hover:bg-primary-foreground/90">
                 Create account first
                 <ArrowRight className="h-5 w-5" />
               </Button>
