@@ -216,23 +216,28 @@ export default function Feed() {
                   className="p-4 md:p-5 rounded-xl border border-border bg-card hover:border-accent/50 transition-colors"
                 >
                   <div className="flex gap-4">
-                    {/* Play Button */}
-                    <button
-                      onClick={() => handlePlayPreview(pack)}
-                      disabled={!pack.preview_path}
-                      className={`flex-shrink-0 w-14 h-14 rounded-lg flex items-center justify-center transition-colors ${
-                        pack.preview_path
-                          ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                          : "bg-secondary text-muted-foreground cursor-not-allowed"
-                      }`}
-                      aria-label={isPlaying ? "Pause preview" : "Play preview"}
-                    >
-                      {isPlaying ? (
-                        <Pause className="h-6 w-6" />
-                      ) : (
-                        <Play className="h-6 w-6 ml-0.5" />
-                      )}
-                    </button>
+                    {/* Icon / Play Button - Show play only if preview exists */}
+                    {pack.preview_path ? (
+                      <button
+                        onClick={() => handlePlayPreview(pack)}
+                        className="flex-shrink-0 w-14 h-14 rounded-lg flex items-center justify-center bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                        aria-label={isPlaying ? "Pause preview" : "Play preview"}
+                      >
+                        {isPlaying ? (
+                          <Pause className="h-6 w-6" />
+                        ) : (
+                          <Play className="h-6 w-6 ml-0.5" />
+                        )}
+                      </button>
+                    ) : (
+                      <Link
+                        to={`/pack/${pack.id}`}
+                        className="flex-shrink-0 w-14 h-14 rounded-lg flex items-center justify-center bg-secondary text-muted-foreground hover:bg-secondary/80 transition-colors"
+                        aria-label="View pack"
+                      >
+                        <FileArchive className="h-6 w-6" />
+                      </Link>
+                    )}
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
