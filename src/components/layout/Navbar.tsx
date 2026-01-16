@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, User, Menu, X, Download } from "lucide-react";
+import { Search, User, Menu, X, Download, UserCircle } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
@@ -18,7 +18,7 @@ import logoLight from "@/assets/logo-light.png";
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, creator, signOut } = useAuth();
   const navigate = useNavigate();
   const { resolvedTheme } = useTheme();
 
@@ -86,6 +86,14 @@ export function Navbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                {creator?.handle && (
+                  <DropdownMenuItem asChild>
+                    <Link to={`/creator/${creator.handle}`} className="flex items-center gap-2">
+                      <UserCircle className="h-4 w-4" />
+                      My Page
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                   <Link to="/creator/dashboard">Dashboard</Link>
                 </DropdownMenuItem>
@@ -150,6 +158,14 @@ export function Navbar() {
               
               {user ? (
                 <>
+                  {creator?.handle && (
+                    <Link to={`/creator/${creator.handle}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start gap-2">
+                        <UserCircle className="h-4 w-4" />
+                        My Page
+                      </Button>
+                    </Link>
+                  )}
                   <Link to="/creator/dashboard" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start">Dashboard</Button>
                   </Link>
