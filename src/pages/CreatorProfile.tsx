@@ -401,17 +401,26 @@ export default function CreatorProfile() {
                     className="p-4 md:p-6 rounded-xl border border-border bg-card hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start gap-4">
-                      {/* Play Button */}
-                      <button
-                        onClick={() => handlePlayPreview(pack)}
-                        className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors shrink-0"
-                      >
-                        {playingId === pack.id ? (
-                          <Pause className="h-5 w-5" />
-                        ) : (
-                          <Play className="h-5 w-5 ml-0.5" />
-                        )}
-                      </button>
+                      {/* Icon / Play Button - Show play only if preview exists */}
+                      {pack.preview_path ? (
+                        <button
+                          onClick={() => handlePlayPreview(pack)}
+                          className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors shrink-0"
+                        >
+                          {playingId === pack.id ? (
+                            <Pause className="h-5 w-5" />
+                          ) : (
+                            <Play className="h-5 w-5 ml-0.5" />
+                          )}
+                        </button>
+                      ) : (
+                        <Link 
+                          to={`/pack/${pack.id}`}
+                          className="w-12 h-12 rounded-full bg-secondary text-muted-foreground flex items-center justify-center hover:bg-secondary/80 transition-colors shrink-0"
+                        >
+                          <FileArchive className="h-5 w-5" />
+                        </Link>
+                      )}
 
                       {/* Info */}
                       <div className="flex-1 min-w-0">
