@@ -170,11 +170,30 @@ Deno.serve(async (req) => {
 
     console.log('Generating signed URL for path:', storagePath)
 
+    // Determine the original filename for the download
+    // Extract filename from storage path
+    const pathParts = storagePath.split('/')
+    const originalFilename = pathParts[pathParts.length - 1]
+    
+    // Check if this is a single file (not a zip) - these should download as-is
+    const singleFileExtensions = ['.flp', '.als', '.logic', '.ptx', '.cpr', '.rpp', '.aup3', 
+                                   '.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp',
+                                   '.mp3', '.wav', '.aiff', '.flac', '.ogg', '.m4a',
+                                   '.mid', '.midi']
+    const isSingleFile = singleFileExtensions.some(ext => 
+      originalFilename.toLowerCase().endsWith(ext)
+    )
+    
+    console.log('File:', originalFilename, 'Is single file:', isSingleFile)
+
     // Generate signed URL (valid for 1 hour)
+    // For single files, use download option to preserve original filename
     const { data: signedUrlData, error: signedUrlError } = await supabaseAdmin
       .storage
       .from('dumps')
-      .createSignedUrl(storagePath, 3600)
+      .createSignedUrl(storagePath, 3600, {
+        download: originalFilename // This forces download with original filename
+      })
 
     if (signedUrlError || !signedUrlData) {
       console.error('Signed URL error:', signedUrlError)
@@ -184,10 +203,14 @@ Deno.serve(async (req) => {
       )
     }
 
-    console.log('Generated signed URL successfully')
+    console.log('Generated signed URL successfully for:', originalFilename)
 
     return new Response(
-      JSON.stringify({ url: signedUrlData.signedUrl }),
+      JSON.stringify({ 
+        url: signedUrlData.signedUrl,
+        filename: originalFilename,
+        isSingleFile: isSingleFile
+      }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 

@@ -286,71 +286,78 @@ export default function CreatorProfile() {
         } : undefined}
       />
 
-      <div className="container">
-        {/* Profile Header */}
-        <div className="flex flex-col md:flex-row md:items-end gap-6 -mt-16 md:-mt-20 mb-6">
-          <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-secondary border-4 border-background flex items-center justify-center text-4xl font-bold overflow-hidden">
-            {creator.profiles?.avatar_url ? (
-              <img
-                src={creator.profiles.avatar_url}
-                alt={displayName}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              displayName.charAt(0).toUpperCase()
-            )}
-          </div>
-          
-          <div className="flex-1 md:pb-2">
-            <h1 className="text-2xl md:text-3xl font-bold">{displayName}</h1>
-            <p className="text-muted-foreground">@{creator.handle}</p>
-            {creator.tags && creator.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {creator.tags.slice(0, 4).map((tag) => (
-                  <Badge key={tag} variant="secondary" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <div className="flex flex-col items-start md:items-end gap-3">
-            <div className="flex items-center gap-2">
-              {creator.price_usd === 0 ? (
-                <Badge variant="free" className="px-4 py-1.5 text-sm">
-                  Free to Subscribe
-                </Badge>
+      {/* Profile Header Section - Below Banner with dark background for readability */}
+      <div className="bg-background/95 backdrop-blur-sm border-b border-border">
+        <div className="container py-6">
+          <div className="flex flex-col md:flex-row md:items-center gap-6">
+            {/* Avatar - Positioned to overlap banner */}
+            <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-secondary border-4 border-background flex items-center justify-center text-4xl font-bold overflow-hidden -mt-20 md:-mt-24 shrink-0">
+              {creator.profiles?.avatar_url ? (
+                <img
+                  src={creator.profiles.avatar_url}
+                  alt={displayName}
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <div className="text-right">
-                  <span className="text-2xl font-bold">${creator.price_usd}</span>
-                  <span className="text-muted-foreground">/month</span>
-                </div>
+                displayName.charAt(0).toUpperCase()
               )}
             </div>
             
-            <div className="flex gap-2">
-              {isSubscribed ? (
-                <Button variant="secondary" disabled>
-                  Subscribed
-                </Button>
-              ) : (
-                <Button size="lg" onClick={handleSubscribe} disabled={subscribing}>
-                  {subscribing ? "Redirecting..." : "Subscribe"}
-                </Button>
+            {/* Name and Tags */}
+            <div className="flex-1">
+              <h1 className="text-2xl md:text-3xl font-bold">{displayName}</h1>
+              <p className="text-muted-foreground">@{creator.handle}</p>
+              {creator.tags && creator.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {creator.tags.slice(0, 4).map((tag) => (
+                    <Badge key={tag} variant="secondary" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
               )}
-              <Link to="/download">
-                <Button variant="outline" size="lg">
-                  Get App to Upload
-                </Button>
-              </Link>
+            </div>
+          
+            {/* Price and Subscribe Actions */}
+            <div className="flex flex-col items-start md:items-end gap-3 md:ml-auto">
+              <div className="flex items-center gap-2">
+                {creator.price_usd === 0 ? (
+                  <Badge variant="free" className="px-4 py-1.5 text-sm">
+                    Free to Subscribe
+                  </Badge>
+                ) : (
+                  <div className="text-right">
+                    <span className="text-2xl font-bold">${creator.price_usd}</span>
+                    <span className="text-muted-foreground">/month</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex gap-2">
+                {isSubscribed ? (
+                  <Button variant="secondary" disabled>
+                    Subscribed
+                  </Button>
+                ) : (
+                  <Button size="lg" onClick={handleSubscribe} disabled={subscribing}>
+                    {subscribing ? "Redirecting..." : "Subscribe"}
+                  </Button>
+                )}
+                <Link to="/download">
+                  <Button variant="outline" size="lg">
+                    Get App to Upload
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
+      <div className="container">
         {/* Social Links */}
         {hasLinks && (
-          <div className="mb-8">
+          <div className="my-6">
             <SocialLinks
               soundcloudUrl={creator.soundcloud_url}
               spotifyUrl={creator.spotify_url}
