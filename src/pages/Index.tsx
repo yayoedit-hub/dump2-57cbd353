@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/layout/Layout";
 import { ArrowRight, Music, Download, Sparkles } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import Feed from "@/pages/Feed";
 
 const FEATURED_CREATORS = [
   {
@@ -35,6 +37,13 @@ const FEATURED_CREATORS = [
 ];
 
 export default function Index() {
+  const { user, loading } = useAuth();
+
+  // Show feed for logged-in users
+  if (!loading && user) {
+    return <Feed />;
+  }
+
   return (
     <Layout>
       {/* Hero Section */}
