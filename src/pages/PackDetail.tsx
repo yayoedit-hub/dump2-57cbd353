@@ -14,7 +14,10 @@ import {
   Piano,
   Calendar,
   ArrowLeft,
-  Loader2
+  Loader2,
+  FileImage,
+  File,
+  FileText
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -52,6 +55,66 @@ const PACK_TYPE_LABELS: Record<string, { label: string; description: string }> =
   flp_only: { label: "FLP Only", description: "Single FL Studio project file" },
   zipped_project: { label: "Zipped Project", description: "FL Studio project with all samples included" },
   compatible_pack: { label: "Compatible Pack", description: "Full project with optional stems and MIDI" },
+};
+
+// Helper to get file type info based on file extension
+const getFileTypeInfo = (filePath: string | null) => {
+  if (!filePath) return null;
+  
+  // Extract filename from path or URL
+  let filename = filePath;
+  if (filePath.includes('/')) {
+    filename = filePath.split('/').pop() || filePath;
+  }
+  // Remove query params if present
+  if (filename.includes('?')) {
+    filename = filename.split('?')[0];
+  }
+  
+  const ext = filename.toLowerCase().split('.').pop() || '';
+  
+  // Define file type mappings
+  const fileTypes: Record<string, { label: string; description: string; icon: typeof FileArchive }> = {
+    // Project files
+    flp: { label: "FL Studio Project", description: "FL Studio project file (.flp)", icon: Music },
+    als: { label: "Ableton Project", description: "Ableton Live project file (.als)", icon: Music },
+    logic: { label: "Logic Project", description: "Logic Pro project file", icon: Music },
+    ptx: { label: "Pro Tools Project", description: "Pro Tools project file (.ptx)", icon: Music },
+    cpr: { label: "Cubase Project", description: "Cubase project file (.cpr)", icon: Music },
+    rpp: { label: "Reaper Project", description: "Reaper project file (.rpp)", icon: Music },
+    aup3: { label: "Audacity Project", description: "Audacity project file (.aup3)", icon: Music },
+    
+    // Archives
+    zip: { label: "ZIP Package", description: "Compressed archive with project files", icon: FileArchive },
+    rar: { label: "RAR Archive", description: "Compressed archive", icon: FileArchive },
+    '7z': { label: "7z Archive", description: "Compressed archive", icon: FileArchive },
+    
+    // Images
+    jpg: { label: "Image (JPG)", description: "JPEG image file", icon: FileImage },
+    jpeg: { label: "Image (JPG)", description: "JPEG image file", icon: FileImage },
+    png: { label: "Image (PNG)", description: "PNG image file", icon: FileImage },
+    gif: { label: "Image (GIF)", description: "GIF image file", icon: FileImage },
+    webp: { label: "Image (WebP)", description: "WebP image file", icon: FileImage },
+    bmp: { label: "Image (BMP)", description: "Bitmap image file", icon: FileImage },
+    
+    // Audio
+    mp3: { label: "Audio (MP3)", description: "MP3 audio file", icon: FileAudio },
+    wav: { label: "Audio (WAV)", description: "WAV audio file", icon: FileAudio },
+    aiff: { label: "Audio (AIFF)", description: "AIFF audio file", icon: FileAudio },
+    flac: { label: "Audio (FLAC)", description: "FLAC audio file", icon: FileAudio },
+    ogg: { label: "Audio (OGG)", description: "OGG audio file", icon: FileAudio },
+    m4a: { label: "Audio (M4A)", description: "M4A audio file", icon: FileAudio },
+    
+    // MIDI
+    mid: { label: "MIDI File", description: "Standard MIDI file", icon: Piano },
+    midi: { label: "MIDI File", description: "Standard MIDI file", icon: Piano },
+    
+    // Documents
+    pdf: { label: "PDF Document", description: "PDF document file", icon: FileText },
+    txt: { label: "Text File", description: "Plain text file", icon: FileText },
+  };
+  
+  return fileTypes[ext] || { label: "File", description: "Download file", icon: File };
 };
 
 export default function PackDetail() {
@@ -220,6 +283,12 @@ export default function PackDetail() {
   // Check for project file using dump_zip_path (desktop app) or fallback to project_zip_path/flp_path
   const hasProject = pack.dump_zip_path || pack.project_zip_path || pack.flp_path;
 
+  // Get the primary file path for type detection
+  const primaryFilePath = pack.dump_zip_path || pack.project_zip_path || pack.flp_path;
+  const projectFileInfo = getFileTypeInfo(primaryFilePath);
+  const stemsFileInfo = getFileTypeInfo(pack.stems_zip_path);
+  const midiFileInfo = getFileTypeInfo(pack.midi_zip_path);
+
   return (
     <Layout>
       <div className="container py-8 max-w-4xl">
@@ -355,19 +424,17 @@ export default function PackDetail() {
             </div>
           ) : (
             <div className="space-y-3">
-              {hasProject && (
+              {hasProject && projectFileInfo && (
                 <button
                   onClick={() => handleDownload("project")}
                   disabled={!!downloadingFile}
                   className="w-full flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-secondary/50 transition-colors text-left"
                 >
-                  <FileArchive className="h-6 w-6 text-muted-foreground" />
+                  <projectFileInfo.icon className="h-6 w-6 text-muted-foreground" />
                   <div className="flex-1">
-                    <p className="font-medium">
-                      {pack.pack_type === "flp_only" ? "Project FLP" : "Project ZIP"}
-                    </p>
+                    <p className="font-medium">{projectFileInfo.label}</p>
                     <p className="text-sm text-muted-foreground">
-                      {PACK_TYPE_LABELS[pack.pack_type].description}
+                      {projectFileInfo.description}
                     </p>
                   </div>
                   {downloadingFile === "project" ? (
@@ -378,15 +445,15 @@ export default function PackDetail() {
                 </button>
               )}
 
-              {pack.stems_zip_path && (
+              {pack.stems_zip_path && stemsFileInfo && (
                 <button
                   onClick={() => handleDownload("stems")}
                   disabled={!!downloadingFile}
                   className="w-full flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-secondary/50 transition-colors text-left"
                 >
-                  <FileAudio className="h-6 w-6 text-muted-foreground" />
+                  <stemsFileInfo.icon className="h-6 w-6 text-muted-foreground" />
                   <div className="flex-1">
-                    <p className="font-medium">Stems ZIP</p>
+                    <p className="font-medium">Stems {stemsFileInfo.label}</p>
                     <p className="text-sm text-muted-foreground">
                       Individual track exports
                     </p>
@@ -399,15 +466,15 @@ export default function PackDetail() {
                 </button>
               )}
 
-              {pack.midi_zip_path && (
+              {pack.midi_zip_path && midiFileInfo && (
                 <button
                   onClick={() => handleDownload("midi")}
                   disabled={!!downloadingFile}
                   className="w-full flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-secondary/50 transition-colors text-left"
                 >
-                  <Piano className="h-6 w-6 text-muted-foreground" />
+                  <midiFileInfo.icon className="h-6 w-6 text-muted-foreground" />
                   <div className="flex-1">
-                    <p className="font-medium">MIDI ZIP</p>
+                    <p className="font-medium">MIDI {midiFileInfo.label}</p>
                     <p className="text-sm text-muted-foreground">
                       MIDI files for melodies and drums
                     </p>
