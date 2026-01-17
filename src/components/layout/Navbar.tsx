@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, User, Menu, X, Download, UserCircle, Shield, DollarSign } from "lucide-react";
+import { Search, User, Menu, X, Download, UserCircle, Shield, DollarSign, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
@@ -115,9 +115,15 @@ export function Navbar() {
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
+                      <Link to="/admin" className="flex items-center gap-2 text-primary">
+                        <LayoutDashboard className="h-4 w-4" />
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to="/admin/payouts" className="flex items-center gap-2 text-primary">
                         <Shield className="h-4 w-4" />
-                        Admin: Payouts
+                        Process Payouts
                       </Link>
                     </DropdownMenuItem>
                   </>

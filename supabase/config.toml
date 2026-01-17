@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.request-payout]
 verify_jwt = false
+
+[functions.notify-payout]
+verify_jwt = false

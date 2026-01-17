@@ -179,6 +179,26 @@ export default function AdminPayouts() {
 
       if (error) throw error;
 
+      // Send email notification for completed or failed payouts
+      if (newStatus === "completed" || newStatus === "failed") {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            await supabase.functions.invoke("notify-payout", {
+              body: {
+                payout_id: processingPayout.id,
+                status: newStatus,
+                notes: notes || undefined,
+              },
+            });
+            toast.success(`Email notification sent to creator`);
+          }
+        } catch (emailError) {
+          console.error("Failed to send email notification:", emailError);
+          toast.error("Payout updated but email notification failed");
+        }
+      }
+
       toast.success(`Payout marked as ${newStatus}`);
       setProcessingPayout(null);
       fetchPayouts();

@@ -16,6 +16,7 @@ import PackDetail from "./pages/PackDetail";
 import Subscriptions from "./pages/Subscriptions";
 import Earnings from "./pages/Earnings";
 import AdminPayouts from "./pages/AdminPayouts";
+import AdminDashboard from "./pages/AdminDashboard";
 import Settings from "./pages/Settings";
 import Download from "./pages/Download";
 import FAQ from "./pages/FAQ";
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/how-to-upload" element={<HowToUpload />} />
               <Route path="/pack/:id" element={<PackDetail />} />
               <Route path="/subscriptions" element={<Subscriptions />} />
+              <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/payouts" element={<AdminPayouts />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/download" element={<Download />} />
