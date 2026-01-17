@@ -60,6 +60,118 @@ export type Database = {
           },
         ]
       }
+      creator_earnings: {
+        Row: {
+          created_at: string
+          creator_id: string
+          gross_amount: number
+          id: string
+          net_amount: number
+          platform_fee: number
+          status: string
+          stripe_payment_intent_id: string | null
+          subscriber_id: string
+          subscription_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          gross_amount: number
+          id?: string
+          net_amount: number
+          platform_fee: number
+          status?: string
+          stripe_payment_intent_id?: string | null
+          subscriber_id: string
+          subscription_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          platform_fee?: number
+          status?: string
+          stripe_payment_intent_id?: string | null
+          subscriber_id?: string
+          subscription_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_earnings_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_earnings_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_earnings_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      creator_payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          creator_id: string
+          id: string
+          notes: string | null
+          payout_details: Json | null
+          payout_method: string
+          processed_at: string | null
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          creator_id: string
+          id?: string
+          notes?: string | null
+          payout_details?: Json | null
+          payout_method: string
+          processed_at?: string | null
+          status?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          creator_id?: string
+          id?: string
+          notes?: string | null
+          payout_details?: Json | null
+          payout_method?: string
+          processed_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_payouts_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_payouts_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       creators: {
         Row: {
           back_catalog_access: boolean | null
@@ -71,7 +183,10 @@ export type Database = {
           instagram_url: string | null
           is_active: boolean | null
           license_type: Database["public"]["Enums"]["license_type"] | null
+          minimum_payout: number | null
+          payout_details: Json | null
           payout_email: string | null
+          payout_method: string | null
           price_usd: number | null
           soundcloud_url: string | null
           spotify_url: string | null
@@ -94,7 +209,10 @@ export type Database = {
           instagram_url?: string | null
           is_active?: boolean | null
           license_type?: Database["public"]["Enums"]["license_type"] | null
+          minimum_payout?: number | null
+          payout_details?: Json | null
           payout_email?: string | null
+          payout_method?: string | null
           price_usd?: number | null
           soundcloud_url?: string | null
           spotify_url?: string | null
@@ -117,7 +235,10 @@ export type Database = {
           instagram_url?: string | null
           is_active?: boolean | null
           license_type?: Database["public"]["Enums"]["license_type"] | null
+          minimum_payout?: number | null
+          payout_details?: Json | null
           payout_email?: string | null
+          payout_method?: string | null
           price_usd?: number | null
           soundcloud_url?: string | null
           spotify_url?: string | null

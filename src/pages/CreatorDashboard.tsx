@@ -245,7 +245,13 @@ export default function CreatorDashboard() {
             <h1 className="text-3xl font-bold mb-1">Creator Overview</h1>
             <p className="text-muted-foreground">@{creator.handle}</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
+            <Link to="/creator/earnings">
+              <Button variant="outline">
+                <Users className="h-4 w-4" />
+                Earnings
+              </Button>
+            </Link>
             <Link to={`/creator/${creator.handle}`}>
               <Button variant="outline">
                 <ExternalLink className="h-4 w-4" />
