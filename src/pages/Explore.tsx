@@ -95,7 +95,9 @@ export default function Explore() {
       .eq("is_active", true);
 
     if (searchQuery) {
-      query = query.or(`handle.ilike.%${searchQuery}%,bio.ilike.%${searchQuery}%`);
+      // Escape ILIKE special characters to prevent pattern manipulation
+      const escapedQuery = searchQuery.replace(/[%_\\]/g, '\\$&');
+      query = query.or(`handle.ilike.%${escapedQuery}%,bio.ilike.%${escapedQuery}%`);
     }
 
     if (selectedPriceRange) {
