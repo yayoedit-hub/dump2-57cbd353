@@ -128,7 +128,7 @@ export default function Auth() {
         // After a short delay, navigate if auto-confirm is enabled
         setTimeout(() => {
           if (role === "creator" || role === "both") {
-            navigate("/onboarding");
+            navigate("/creator/dashboard");
           } else {
             navigate("/explore");
           }
