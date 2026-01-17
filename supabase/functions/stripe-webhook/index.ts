@@ -2,6 +2,8 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
+const PLATFORM_FEE_PERCENT = 0.25; // 25% platform fee
+
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
@@ -69,7 +71,7 @@ serve(async (req) => {
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
           // Upsert subscription in database
-          const { error } = await supabaseAdmin
+          const { data: subData, error } = await supabaseAdmin
             .from("subscriptions")
             .upsert({
               subscriber_id: subscriberId,
@@ -80,12 +82,62 @@ serve(async (req) => {
               current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
             }, {
               onConflict: "subscriber_id,creator_id",
-            });
+            })
+            .select()
+            .single();
 
           if (error) {
             logStep("ERROR upserting subscription", { error: error.message });
           } else {
-            logStep("Subscription created/updated", { subscriberId, creatorId });
+            logStep("Subscription created/updated", { subscriberId, creatorId, subscriptionId: subData?.id });
+          }
+        }
+        break;
+      }
+
+      case "invoice.payment_succeeded": {
+        const invoice = event.data.object as Stripe.Invoice;
+        logStep("Payment succeeded", { invoiceId: invoice.id, subscriptionId: invoice.subscription });
+
+        if (invoice.subscription && invoice.amount_paid > 0) {
+          // Find the subscription in our database
+          const { data: subscription } = await supabaseAdmin
+            .from("subscriptions")
+            .select("id, creator_id, subscriber_id")
+            .eq("stripe_subscription_id", invoice.subscription as string)
+            .maybeSingle();
+
+          if (subscription) {
+            const grossAmount = invoice.amount_paid / 100; // Convert cents to dollars
+            const platformFee = grossAmount * PLATFORM_FEE_PERCENT;
+            const netAmount = grossAmount - platformFee;
+
+            // Record the earning
+            const { error: earningsError } = await supabaseAdmin
+              .from("creator_earnings")
+              .insert({
+                creator_id: subscription.creator_id,
+                subscriber_id: subscription.subscriber_id,
+                subscription_id: subscription.id,
+                stripe_payment_intent_id: invoice.payment_intent as string,
+                gross_amount: grossAmount,
+                platform_fee: platformFee,
+                net_amount: netAmount,
+                status: "available", // Immediately available for withdrawal
+              });
+
+            if (earningsError) {
+              logStep("ERROR recording earnings", { error: earningsError.message });
+            } else {
+              logStep("Earnings recorded", { 
+                creatorId: subscription.creator_id, 
+                gross: grossAmount, 
+                net: netAmount,
+                fee: platformFee 
+              });
+            }
+          } else {
+            logStep("No subscription found for invoice", { subscriptionId: invoice.subscription });
           }
         }
         break;
