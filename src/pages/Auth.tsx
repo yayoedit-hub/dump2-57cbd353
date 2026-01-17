@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
@@ -32,6 +33,8 @@ export default function Auth() {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [signupSuccess, setSignupSuccess] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [termsError, setTermsError] = useState(false);
   
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -89,6 +92,14 @@ export default function Auth() {
     e.preventDefault();
     
     if (!validateForm()) return;
+    
+    // Check terms agreement for signup
+    if (isSignUp && !agreedToTerms) {
+      setTermsError(true);
+      toast.error("You must agree to the content policy to create an account.");
+      return;
+    }
+    setTermsError(false);
     
     setLoading(true);
     
@@ -334,6 +345,32 @@ export default function Auth() {
                     </div>
                   </label>
                 </RadioGroup>
+              </div>
+            )}
+            
+            {isSignUp && (
+              <div className="space-y-3">
+                <div className={`flex items-start gap-3 p-4 rounded-lg border ${termsError ? 'border-destructive bg-destructive/5' : 'border-border'}`}>
+                  <Checkbox
+                    id="terms"
+                    checked={agreedToTerms}
+                    onCheckedChange={(checked) => {
+                      setAgreedToTerms(checked === true);
+                      if (checked) setTermsError(false);
+                    }}
+                    className="mt-0.5"
+                  />
+                  <label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
+                    I agree not to upload any copyrighted material that I do not have rights to share. I understand that I am solely responsible for any content I upload, and Dump is not liable for any copyright infringement claims arising from my uploads. By checking this box, I also agree to the{" "}
+                    <Link to="/terms" className="text-primary hover:underline" target="_blank">
+                      Terms of Service
+                    </Link>
+                    .
+                  </label>
+                </div>
+                {termsError && (
+                  <p className="text-sm text-destructive">You must agree to continue.</p>
+                )}
               </div>
             )}
             
