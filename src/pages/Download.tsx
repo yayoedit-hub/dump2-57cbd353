@@ -3,8 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Download, Monitor, Apple, Info } from "lucide-react";
 
 // Direct download URLs from public bucket
-const WINDOWS_DOWNLOAD_URL = "https://pigkjkuteodszjkarwvz.supabase.co/storage/v1/object/public/app-downloads/Dump-Windows-1.0.4-Setup.exe";
-const MAC_DOWNLOAD_URL = "https://pigkjkuteodszjkarwvz.supabase.co/storage/v1/object/public/app-downloads/Dump-Mac-1.0.4-Installer.dmg";
+const WINDOWS_DOWNLOAD_URL =
+  "https://pigkjkuteodszjkarwvz.supabase.co/storage/v1/object/public/app-downloads/Dump-Windows-1.0.4-Setup.exe";
+const MAC_DOWNLOAD_URL =
+  "https://pigkjkuteodszjkarwvz.supabase.co/storage/v1/object/public/app-downloads/Dump-Mac-1.0.4-Installer.dmg";
+
+// Helps verify which deployment is being served (useful during domain/CDN migrations)
+const BUILD_ID = "2026-01-17-01";
 
 export default function DownloadPage() {
   return (
@@ -14,18 +19,17 @@ export default function DownloadPage() {
           <div className="w-20 h-20 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-8">
             <Download className="h-10 w-10" />
           </div>
-          
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Dump Desktop App
-          </h1>
-          <p className="text-lg text-muted-foreground mb-12">
+
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Dump Desktop App</h1>
+          <p className="text-lg text-muted-foreground">
             Upload your dump packs directly from FL Studio. The desktop app handles all uploads with proper file organization.
           </p>
-          
-          <div className="grid sm:grid-cols-2 gap-4 mb-12">
-            <Button 
-              variant="outline" 
-              size="lg" 
+          <p className="mt-3 text-xs text-muted-foreground">Build: {BUILD_ID}</p>
+
+          <div className="mt-9 grid sm:grid-cols-2 gap-4 mb-12">
+            <Button
+              variant="outline"
+              size="lg"
               className="w-full h-auto py-6 flex-col gap-2"
               asChild
             >
@@ -35,10 +39,10 @@ export default function DownloadPage() {
                 <span className="text-sm text-muted-foreground">Windows 10 or later</span>
               </a>
             </Button>
-            
-            <Button 
-              variant="outline" 
-              size="lg" 
+
+            <Button
+              variant="outline"
+              size="lg"
               className="w-full h-auto py-6 flex-col gap-2"
               asChild
             >
@@ -49,7 +53,7 @@ export default function DownloadPage() {
               </a>
             </Button>
           </div>
-          
+
           <div className="p-6 rounded-xl bg-secondary/50 text-left">
             <div className="flex items-start gap-3">
               <Info className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
