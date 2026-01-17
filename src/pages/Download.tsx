@@ -1,8 +1,67 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Download, Monitor, Apple, Info } from "lucide-react";
+import { Download, Monitor, Apple, Info, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface AppFile {
+  name: string;
+  url: string;
+}
 
 export default function DownloadPage() {
+  const [windowsFile, setWindowsFile] = useState<AppFile | null>(null);
+  const [macFile, setMacFile] = useState<AppFile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchAppFiles() {
+      try {
+        const { data: files, error } = await supabase.storage
+          .from('app-downloads')
+          .list();
+
+        if (error) {
+          console.error('Error fetching app files:', error);
+          setLoading(false);
+          return;
+        }
+
+        // Find Windows installer (.exe)
+        const windowsInstaller = files?.find(f => f.name.endsWith('.exe'));
+        if (windowsInstaller) {
+          const { data: urlData } = supabase.storage
+            .from('app-downloads')
+            .getPublicUrl(windowsInstaller.name);
+          setWindowsFile({ name: windowsInstaller.name, url: urlData.publicUrl });
+        }
+
+        // Find macOS installer (.dmg)
+        const macInstaller = files?.find(f => f.name.endsWith('.dmg'));
+        if (macInstaller) {
+          const { data: urlData } = supabase.storage
+            .from('app-downloads')
+            .getPublicUrl(macInstaller.name);
+          setMacFile({ name: macInstaller.name, url: urlData.publicUrl });
+        }
+      } catch (err) {
+        console.error('Error:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAppFiles();
+  }, []);
+
+  const handleDownload = (file: AppFile | null, platform: string) => {
+    if (file) {
+      window.open(file.url, '_blank');
+    } else {
+      alert(`Coming soon! The ${platform} app is currently in development.`);
+    }
+  };
+
   return (
     <Layout>
       <div className="container py-16 md:py-24">
@@ -18,37 +77,39 @@ export default function DownloadPage() {
             Upload your dump packs directly from FL Studio. The desktop app handles all uploads with proper file organization.
           </p>
           
-          <div className="grid sm:grid-cols-2 gap-4 mb-12">
-            <a 
-              href="/downloads/dump-setup.exe" 
-              className="block"
-              onClick={(e) => {
-                e.preventDefault();
-                alert("Coming soon! The Windows app is currently in development.");
-              }}
-            >
-              <Button variant="outline" size="lg" className="w-full h-auto py-6 flex-col gap-2">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-4 mb-12">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="w-full h-auto py-6 flex-col gap-2"
+                onClick={() => handleDownload(windowsFile, 'Windows')}
+              >
                 <Monitor className="h-8 w-8" />
                 <span className="text-lg font-semibold">Download for Windows</span>
-                <span className="text-sm text-muted-foreground">Windows 10 or later</span>
+                <span className="text-sm text-muted-foreground">
+                  {windowsFile ? 'Windows 10 or later' : 'Coming soon'}
+                </span>
               </Button>
-            </a>
-            
-            <a 
-              href="/downloads/dump.dmg"
-              className="block"
-              onClick={(e) => {
-                e.preventDefault();
-                alert("Coming soon! The macOS app is currently in development.");
-              }}
-            >
-              <Button variant="outline" size="lg" className="w-full h-auto py-6 flex-col gap-2">
+              
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="w-full h-auto py-6 flex-col gap-2"
+                onClick={() => handleDownload(macFile, 'macOS')}
+              >
                 <Apple className="h-8 w-8" />
                 <span className="text-lg font-semibold">Download for macOS</span>
-                <span className="text-sm text-muted-foreground">macOS 11 or later</span>
+                <span className="text-sm text-muted-foreground">
+                  {macFile ? 'macOS 11 or later' : 'Coming soon'}
+                </span>
               </Button>
-            </a>
-          </div>
+            </div>
+          )}
           
           <div className="p-6 rounded-xl bg-secondary/50 text-left">
             <div className="flex items-start gap-3">
