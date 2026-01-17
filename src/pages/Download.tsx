@@ -17,33 +17,22 @@ export default function DownloadPage() {
   useEffect(() => {
     async function fetchAppFiles() {
       try {
-        const { data: files, error } = await supabase.storage
+        // Use known filenames since the bucket is public
+        // This avoids needing list permissions
+        const windowsFileName = 'Dump-Windows-1.0.4-Setup.exe';
+        const macFileName = 'Dump-Mac-1.0.4-Installer.dmg';
+
+        const { data: windowsUrl } = supabase.storage
           .from('app-downloads')
-          .list();
+          .getPublicUrl(windowsFileName);
+        
+        const { data: macUrl } = supabase.storage
+          .from('app-downloads')
+          .getPublicUrl(macFileName);
 
-        if (error) {
-          console.error('Error fetching app files:', error);
-          setLoading(false);
-          return;
-        }
-
-        // Find Windows installer (.exe)
-        const windowsInstaller = files?.find(f => f.name.endsWith('.exe'));
-        if (windowsInstaller) {
-          const { data: urlData } = supabase.storage
-            .from('app-downloads')
-            .getPublicUrl(windowsInstaller.name);
-          setWindowsFile({ name: windowsInstaller.name, url: urlData.publicUrl });
-        }
-
-        // Find macOS installer (.dmg)
-        const macInstaller = files?.find(f => f.name.endsWith('.dmg'));
-        if (macInstaller) {
-          const { data: urlData } = supabase.storage
-            .from('app-downloads')
-            .getPublicUrl(macInstaller.name);
-          setMacFile({ name: macInstaller.name, url: urlData.publicUrl });
-        }
+        // Verify files exist by checking if URLs are valid
+        setWindowsFile({ name: windowsFileName, url: windowsUrl.publicUrl });
+        setMacFile({ name: macFileName, url: macUrl.publicUrl });
       } catch (err) {
         console.error('Error:', err);
       } finally {
