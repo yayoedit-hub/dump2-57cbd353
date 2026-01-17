@@ -31,7 +31,9 @@ import {
   ImageIcon,
   Moon,
   Sun,
-  Palette
+  Palette,
+  Wallet,
+  CreditCard
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -79,6 +81,10 @@ export default function Settings() {
   const [showBannerCropper, setShowBannerCropper] = useState(false);
   const [tempBannerFile, setTempBannerFile] = useState<File | null>(null);
   
+  // Payout preferences state
+  const [payoutMethod, setPayoutMethod] = useState<string>("");
+  const [payoutEmail, setPayoutEmail] = useState("");
+  
   const [saving, setSaving] = useState(false);
   const [creatingCreator, setCreatingCreator] = useState(false);
 
@@ -112,6 +118,8 @@ export default function Settings() {
       setInstagramUrl(creator.instagram_url || "");
       setYoutubeUrl(creator.youtube_url || "");
       setBannerPreview(creator.banner_url || null);
+      setPayoutMethod(creator.payout_method || "");
+      setPayoutEmail(creator.payout_email || "");
     }
   }, [profile, creator]);
 
@@ -350,7 +358,7 @@ export default function Settings() {
         }
       }
       
-      // Update creator fields including social links and banner
+      // Update creator fields including social links, banner, and payout preferences
       const { error } = await supabase
         .from("creators")
         .update({
@@ -364,6 +372,8 @@ export default function Settings() {
           instagram_url: instagramUrl.trim() || null,
           youtube_url: youtubeUrl.trim() || null,
           banner_url: bannerUrl,
+          payout_method: payoutMethod || null,
+          payout_email: payoutEmail.trim() || null,
         })
         .eq("id", creator.id);
 
@@ -899,6 +909,60 @@ export default function Settings() {
                       />
                     </div>
                   )}
+                </div>
+
+                {/* Payout Preferences Section */}
+                <div className="space-y-4 pt-6 border-t border-border">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="h-4 w-4" />
+                    <Label className="text-base font-medium">Payout Preferences</Label>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Set up how you want to receive your earnings. You can request payouts from your Earnings dashboard.
+                  </p>
+
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label>Preferred Payout Method</Label>
+                      <Select value={payoutMethod} onValueChange={setPayoutMethod}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select payout method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="paypal">PayPal</SelectItem>
+                          <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                          <SelectItem value="stripe_connect" disabled>Stripe Connect (Coming Soon)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {(payoutMethod === "paypal" || payoutMethod === "bank_transfer") && (
+                      <div className="space-y-2">
+                        <Label htmlFor="payoutEmail" className="flex items-center gap-2">
+                          <CreditCard className="h-4 w-4 text-muted-foreground" />
+                          {payoutMethod === "paypal" ? "PayPal Email" : "Account Email"}
+                        </Label>
+                        <Input
+                          id="payoutEmail"
+                          type="email"
+                          value={payoutEmail}
+                          onChange={(e) => setPayoutEmail(e.target.value)}
+                          placeholder="your@email.com"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          We'll send your payouts to this {payoutMethod === "paypal" ? "PayPal account" : "email for bank transfer instructions"}.
+                        </p>
+                      </div>
+                    )}
+
+                    {payoutMethod && payoutEmail && (
+                      <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
+                        <p className="text-sm text-green-600 dark:text-green-400">
+                          ✓ Payout details configured. You can request payouts from your Earnings dashboard when you have $50+ available.
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <Button onClick={handleSaveCreator} disabled={saving} className="w-full sm:w-auto">

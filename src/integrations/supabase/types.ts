@@ -593,7 +593,7 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       license_type: "personal_only" | "commercial_with_credit"

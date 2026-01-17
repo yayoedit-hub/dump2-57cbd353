@@ -29,6 +29,8 @@ interface Creator {
   website_url: string | null;
   instagram_url: string | null;
   youtube_url: string | null;
+  payout_method: string | null;
+  payout_email: string | null;
 }
 
 interface AuthContextType {
@@ -85,7 +87,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               spotify_url,
               website_url,
               instagram_url,
-              youtube_url
+              youtube_url,
+              payout_method,
+              payout_email
             `)
             .eq("user_id", userId)
             .maybeSingle();
