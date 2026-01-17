@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, User, Menu, X, Download, UserCircle } from "lucide-react";
+import { Search, User, Menu, X, Download, UserCircle, Shield, DollarSign } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
@@ -97,12 +97,31 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link to="/creator/dashboard">Dashboard</Link>
                 </DropdownMenuItem>
+                {creator && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/creator/earnings" className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4" />
+                      Earnings
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                   <Link to="/subscriptions">My Subscriptions</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/settings">Settings</Link>
                 </DropdownMenuItem>
+                {profile?.is_admin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/payouts" className="flex items-center gap-2 text-primary">
+                        <Shield className="h-4 w-4" />
+                        Admin: Payouts
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut} className="text-destructive">
                   Sign Out
