@@ -474,17 +474,20 @@ export default function CreatorUpload() {
             </div>
           </div>
 
-          {/* Rights Checkbox */}
-          <div className="flex items-start gap-3">
-            <Checkbox
-              id="rights"
-              checked={hasRights}
-              onCheckedChange={(checked) => setHasRights(checked === true)}
-              disabled={uploading}
-            />
-            <Label htmlFor="rights" className="text-sm leading-relaxed">
-              I confirm that I own or have the rights to share all content included in this Dump Pack.
-            </Label>
+          {/* Copyright Disclaimer */}
+          <div className="p-4 rounded-lg border border-border">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="rights"
+                checked={hasRights}
+                onCheckedChange={(checked) => setHasRights(checked === true)}
+                disabled={uploading}
+                className="mt-0.5"
+              />
+              <Label htmlFor="rights" className="text-sm leading-relaxed cursor-pointer">
+                I confirm that I own or have the rights to share all content included in this Dump Pack. I agree not to upload any copyrighted material that I do not have rights to share. I understand that I am solely responsible for any content I upload, and Dump is not liable for any copyright infringement claims arising from my uploads.
+              </Label>
+            </div>
           </div>
 
           {/* Submit */}
